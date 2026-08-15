@@ -1,19 +1,17 @@
 "use client";
 
-import {
-  Activity,
-  ArrowDown,
-  ArrowRight,
-  Check,
-  MessageCircle,
-  RadioTower,
-  Sparkles,
-  Users,
-} from "lucide-react";
 import Link from "next/link";
 import {
-  motion,
-} from "motion/react";
+  ArrowRight,
+  CheckCircle2,
+  GitBranch,
+  MessageSquareText,
+  Search,
+  Sparkles,
+  Store,
+} from "lucide-react";
+import { motion } from "motion/react";
+
 import {
   AnimatedHeroBackdrop,
 } from "./AnimatedHeroBackdrop";
@@ -21,20 +19,50 @@ import {
   PhoneStory,
 } from "./PhoneStory";
 
-const decisionSignals = [
-  "Meaningful product change",
-  "Clear user benefit",
-  "Strong audience relevance",
-  "A reason to act now",
+const evidence = [
+  {
+    icon: Store,
+    title: "Read the market",
+    text: "Store listings, ratings, release notes, and recent customer reviews become live product evidence.",
+  },
+  {
+    icon: GitBranch,
+    title: "Understand the release",
+    text: "Connect GitHub when available to separate meaningful user value from maintenance and internal work.",
+  },
+  {
+    icon: Search,
+    title: "Find the opportunity",
+    text: "ShipSpark matches what shipped against what customers actually praise, request, and complain about.",
+  },
+];
+
+const decisions = [
+  {
+    label: "PROMOTE",
+    text: "The release solves something customers care about and has a strong story worth pushing.",
+  },
+  {
+    label: "WAIT",
+    text: "The opportunity is real, but the evidence or release timing is not strong enough yet.",
+  },
+  {
+    label: "SKIP",
+    text: "Do not manufacture a campaign for a release that does not deserve customer attention.",
+  },
 ];
 
 export function LandingExperience() {
   return (
-    <>
-      <section className="relative flex min-h-[100svh] items-center justify-center overflow-hidden pt-[72px]">
+    <main className="overflow-hidden bg-[#070a0f] text-[#f7f8fa]">
+      <section className="relative flex min-h-[calc(100svh-72px)] items-center justify-center overflow-hidden border-b border-white/[0.06]">
         <AnimatedHeroBackdrop />
 
-        <div className="relative z-10 mx-auto w-full max-w-[1180px] px-5 py-20 text-center sm:px-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_43%,rgba(197,255,10,0.075),transparent_24%),radial-gradient(circle_at_67%_42%,rgba(83,255,114,0.055),transparent_30%)]" />
+
+        <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#070a0f] to-transparent" />
+
+        <div className="relative z-10 mx-auto flex w-full max-w-[1120px] flex-col items-center px-6 pb-20 pt-24 text-center sm:px-8">
           <motion.div
             initial={{
               opacity: 0,
@@ -45,32 +73,32 @@ export function LandingExperience() {
               y: 0,
             }}
             transition={{
-              duration: 0.7,
+              duration: 0.5,
             }}
-            className="mx-auto flex w-fit items-center gap-2.5 rounded-full border border-[#63ddf9]/15 bg-[#63ddf9]/[0.045] px-3.5 py-2 font-[var(--font-mono)] text-[8px] uppercase tracking-[0.2em] text-[#8ce8fb]"
+            className="inline-flex items-center gap-2 rounded-full border border-[#c5ff0a]/20 bg-[#c5ff0a]/[0.065] px-4 py-2 text-[11px] font-extrabold tracking-[0.04em] text-[#c5ff0a]"
           >
-            <span className="size-1.5 rounded-full bg-[#63ddf9] shadow-[0_0_16px_rgba(99,221,249,0.85)]" />
-            Release intelligence is live
+            <Sparkles size={13} />
+            AI release intelligence is live
           </motion.div>
 
           <motion.h1
             initial={{
               opacity: 0,
-              y: 24,
+              y: 22,
             }}
             animate={{
               opacity: 1,
               y: 0,
             }}
             transition={{
-              duration: 0.8,
+              duration: 0.6,
               delay: 0.08,
             }}
-            className="mx-auto mt-8 max-w-[1080px] text-[clamp(3.7rem,7.2vw,7.25rem)] font-normal leading-[0.98] tracking-[-0.045em] text-white"
+            className="mt-8 max-w-[980px] text-[54px] font-extrabold leading-[0.98] tracking-[-0.055em] text-white sm:text-[72px] lg:text-[88px]"
           >
-            Every release has
-            <span className="block bg-gradient-to-r from-[#93a7ff] via-[#8be8ff] to-[#d9f7ff] bg-clip-text text-transparent">
-              a moment worth finding.
+            Know when a release
+            <span className="mt-1 block bg-[linear-gradient(100deg,#c5ff0a_0%,#53ff72_75%)] bg-clip-text text-transparent">
+              deserves attention.
             </span>
           </motion.h1>
 
@@ -84,223 +112,215 @@ export function LandingExperience() {
               y: 0,
             }}
             transition={{
-              duration: 0.8,
+              duration: 0.55,
               delay: 0.16,
             }}
-            className="mx-auto mt-7 max-w-[720px] text-[17px] font-normal leading-8 text-[#8997aa]"
+            className="mt-7 max-w-[760px] text-[17px] font-semibold leading-8 text-[#aeb7c3] sm:text-[19px]"
           >
-            ShipSpark reads the live App Store context and latest GitHub release, identifies the user facing value, then decides whether the update is worth promoting.
+            ShipSpark reads app stores, customer reviews, release notes, and source activity to decide whether you should promote, wait, or skip before generating a campaign.
           </motion.p>
 
           <motion.div
             initial={{
               opacity: 0,
-              y: 18,
+              y: 16,
             }}
             animate={{
               opacity: 1,
               y: 0,
             }}
             transition={{
-              duration: 0.8,
+              duration: 0.55,
               delay: 0.24,
             }}
-            className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            className="mt-9 flex flex-col items-center gap-3 sm:flex-row"
           >
             <Link
               href="/workspace"
-              className="group inline-flex h-12 items-center gap-4 rounded-xl bg-white px-6 text-[13px] font-medium text-[#07101b] transition hover:bg-[#dff8ff]"
+              className="group inline-flex min-h-[54px] items-center justify-center gap-3 rounded-xl bg-[linear-gradient(105deg,#c5ff0a_0%,#53ff72_100%)] px-7 text-[14px] font-extrabold text-[#071006] shadow-[0_16px_48px_rgba(83,255,114,0.16)] transition hover:scale-[1.02] hover:brightness-110"
             >
               Analyze a release
-
               <ArrowRight
-                size={15}
-                className="transition group-hover:translate-x-1"
+                size={17}
+                className="transition-transform group-hover:translate-x-1"
               />
             </Link>
 
             <a
-              href="#release"
-              className="inline-flex h-12 items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] px-6 text-[13px] font-normal text-[#a9b5c6] transition hover:bg-white/[0.05] hover:text-white"
+              href="#how-it-works"
+              className="inline-flex min-h-[54px] items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.035] px-7 text-[14px] font-bold text-[#c7ced7] backdrop-blur-xl transition hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white"
             >
-              See the release flow
-
-              <ArrowDown size={14} />
+              See how it works
             </a>
           </motion.div>
 
-          <motion.div
-            initial={{
-              opacity: 0,
-            }}
-            animate={{
-              opacity: 1,
-            }}
-            transition={{
-              duration: 1,
-              delay: 0.45,
-            }}
-            className="mx-auto mt-16 grid max-w-[780px] grid-cols-4 gap-2"
-          >
-            {[
-              [
-                "01",
-                "Read",
-              ],
-              [
-                "02",
-                "Understand",
-              ],
-              [
-                "03",
-                "Decide",
-              ],
-              [
-                "04",
-                "Act",
-              ],
-            ].map(
-              (
-                item,
-                index,
-              ) => (
-                <div
-                  key={item[0]}
-                  className="relative"
-                >
-                  <div className="font-[var(--font-mono)] text-[8px] text-[#47556a]">
-                    {item[0]}
-                  </div>
-
-                  <div className="mt-2 text-[12px] font-normal text-[#7d8b9f]">
-                    {item[1]}
-                  </div>
-
-                  {index < 3 && (
-                    <div className="absolute right-[-8px] top-1/2 hidden h-px w-4 bg-white/[0.08] sm:block" />
-                  )}
-                </div>
-              ),
-            )}
-          </motion.div>
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-[12px] font-bold text-[#7f8b9a]">
+            <span>App Store</span>
+            <span className="size-1 rounded-full bg-[#c5ff0a]" />
+            <span>Google Play</span>
+            <span className="size-1 rounded-full bg-[#53ff72]" />
+            <span>GitHub</span>
+            <span className="size-1 rounded-full bg-[#c5ff0a]" />
+            <span>Customer reviews</span>
+          </div>
         </div>
-
-        <motion.a
-          href="#release"
-          animate={{
-            y: [
-              0,
-              7,
-              0,
-            ],
-          }}
-          transition={{
-            duration: 2.4,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2 font-[var(--font-mono)] text-[7px] uppercase tracking-[0.2em] text-[#445166]"
-        >
-          Follow the release
-          <ArrowDown size={12} />
-        </motion.a>
       </section>
 
       <PhoneStory />
 
       <section
-        id="decision"
-        className="relative overflow-hidden border-t border-white/[0.05] bg-[#070a10] px-5 py-28 sm:px-8 lg:px-10"
+        id="how-it-works"
+        className="relative border-y border-white/[0.055] bg-[#090d14] py-28 sm:py-36"
       >
-        <div className="absolute right-[-180px] top-[-100px] size-[500px] rounded-full bg-[#536eff]/[0.07] blur-[150px]" />
+        <div className="absolute left-1/2 top-1/2 h-[500px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#53ff72]/[0.025] blur-[120px]" />
 
-        <div className="relative mx-auto max-w-[1280px]">
-          <div className="grid gap-16 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-            <div>
-              <div className="font-[var(--font-mono)] text-[9px] uppercase tracking-[0.19em] text-[#7b8bff]">
-                Decision engine
+        <div className="relative mx-auto max-w-[1220px] px-6 sm:px-8">
+          <div className="max-w-[760px]">
+            <div className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#c5ff0a]">
+              Evidence before marketing
+            </div>
+
+            <h2 className="mt-5 text-[43px] font-extrabold leading-[1.03] tracking-[-0.045em] text-white sm:text-[58px]">
+              Stop promoting every release
+              <span className="block text-[#8e99a8]">
+                like it matters equally.
+              </span>
+            </h2>
+
+            <p className="mt-6 max-w-[650px] text-[17px] font-semibold leading-8 text-[#9ca7b5]">
+              ShipSpark starts with evidence. Marketing is the result of the decision, not the starting point.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-4 lg:grid-cols-3">
+            {evidence.map(
+              (
+                item,
+                index,
+              ) => {
+                const Icon =
+                  item.icon;
+
+                return (
+                  <motion.div
+                    key={item.title}
+                    initial={{
+                      opacity: 0,
+                      y: 24,
+                    }}
+                    whileInView={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    viewport={{
+                      once: true,
+                      amount: 0.3,
+                    }}
+                    transition={{
+                      duration: 0.45,
+                      delay:
+                        index *
+                        0.07,
+                    }}
+                    className="group rounded-[26px] border border-white/[0.07] bg-[#0c1119] p-7 transition hover:border-[#c5ff0a]/20 hover:bg-[#0e141d]"
+                  >
+                    <div className="flex size-11 items-center justify-center rounded-xl border border-[#c5ff0a]/15 bg-[#c5ff0a]/[0.06] text-[#c5ff0a]">
+                      <Icon size={19} />
+                    </div>
+
+                    <div className="mt-8 text-[11px] font-extrabold tracking-[0.15em] text-[#596576]">
+                      0{index + 1}
+                    </div>
+
+                    <h3 className="mt-3 text-[22px] font-extrabold text-white">
+                      {item.title}
+                    </h3>
+
+                    <p className="mt-3 text-[14px] font-semibold leading-7 text-[#8f9aaa]">
+                      {item.text}
+                    </p>
+                  </motion.div>
+                );
+              },
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="decision"
+        className="relative py-28 sm:py-36"
+      >
+        <div className="mx-auto max-w-[1220px] px-6 sm:px-8">
+          <div className="grid gap-16 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+            <div className="lg:sticky lg:top-32">
+              <div className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#53ff72]">
+                The decision layer
               </div>
 
-              <h2 className="mt-5 max-w-[520px] text-[46px] font-normal leading-[1.04] tracking-[-0.03em] text-white sm:text-[58px]">
-                Promotion starts
-                <span className="block text-[#77869b]">
-                  with evidence.
+              <h2 className="mt-5 text-[44px] font-extrabold leading-[1.02] tracking-[-0.045em] text-white sm:text-[58px]">
+                Not another
+                <span className="block bg-[linear-gradient(100deg,#c5ff0a,#53ff72)] bg-clip-text text-transparent">
+                  AI copy generator.
                 </span>
               </h2>
 
-              <p className="mt-6 max-w-[430px] text-[16px] font-normal leading-7 text-[#788598]">
-                ShipSpark evaluates the release before generating campaign copy. If the change is not strong enough, the correct answer is SKIP.
+              <p className="mt-6 max-w-[500px] text-[17px] font-semibold leading-8 text-[#929dac]">
+                ShipSpark decides whether a campaign should exist before writing one.
               </p>
             </div>
 
-            <div className="relative min-h-[540px]">
-              <div className="absolute left-[40%] top-1/2 size-[390px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#536eff]/[0.08] blur-[100px]" />
+            <div className="space-y-3">
+              {decisions.map(
+                (
+                  decision,
+                  index,
+                ) => (
+                  <motion.div
+                    key={
+                      decision.label
+                    }
+                    initial={{
+                      opacity: 0,
+                      x: 22,
+                    }}
+                    whileInView={{
+                      opacity: 1,
+                      x: 0,
+                    }}
+                    viewport={{
+                      once: true,
+                    }}
+                    transition={{
+                      duration: 0.45,
+                      delay:
+                        index *
+                        0.07,
+                    }}
+                    className="flex gap-5 rounded-[24px] border border-white/[0.07] bg-[#0b1018] p-6 sm:items-center"
+                  >
+                    <div className="mt-1 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#c5ff0a]/[0.08] text-[#c5ff0a] sm:mt-0">
+                      <CheckCircle2
+                        size={18}
+                      />
+                    </div>
 
-              <motion.div
-                animate={{
-                  rotate: 360,
-                }}
-                transition={{
-                  duration: 24,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-                className="absolute left-[40%] top-1/2 size-[390px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#6b82ff]/20"
-              >
-                <div className="absolute left-1/2 top-[-4px] size-2 -translate-x-1/2 rounded-full bg-[#65dcfa] shadow-[0_0_20px_rgba(101,220,250,0.9)]" />
-              </motion.div>
-
-              <div className="absolute left-[40%] top-1/2 flex size-[280px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/[0.08] bg-[#0b1019]/75 backdrop-blur-xl">
-                <span className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.18em] text-[#667287]">
-                  Decision
-                </span>
-
-                <span className="mt-4 text-[42px] font-normal tracking-[-0.025em] text-white">
-                  PROMOTE
-                </span>
-
-                <span className="mt-2 font-[var(--font-mono)] text-[9px] text-[#65dcfa]">
-                  confidence 94
-                </span>
-              </div>
-
-              <div className="absolute right-0 top-1/2 w-[42%] -translate-y-1/2">
-                {decisionSignals.map(
-                  (
-                    signal,
-                    index,
-                  ) => (
-                    <motion.div
-                      key={signal}
-                      initial={{
-                        opacity: 0,
-                        x: 20,
-                      }}
-                      whileInView={{
-                        opacity: 1,
-                        x: 0,
-                      }}
-                      viewport={{
-                        once: true,
-                      }}
-                      transition={{
-                        delay:
-                          index *
-                          0.12,
-                      }}
-                      className="flex items-center justify-between border-b border-white/[0.065] py-5"
-                    >
-                      <span className="text-[15px] font-normal text-[#a7b2c1]">
-                        {signal}
-                      </span>
-
-                      <div className="flex size-7 items-center justify-center rounded-full bg-[#65dcfa]/10 text-[#65dcfa]">
-                        <Check size={12} />
+                    <div>
+                      <div className="text-[15px] font-extrabold text-[#c5ff0a]">
+                        {
+                          decision.label
+                        }
                       </div>
-                    </motion.div>
-                  ),
-                )}
-              </div>
+
+                      <p className="mt-1.5 text-[14px] font-semibold leading-7 text-[#929dac]">
+                        {
+                          decision.text
+                        }
+                      </p>
+                    </div>
+                  </motion.div>
+                ),
+              )}
             </div>
           </div>
         </div>
@@ -308,157 +328,44 @@ export function LandingExperience() {
 
       <section
         id="action"
-        className="relative overflow-hidden border-t border-white/[0.05] bg-[#090d15] px-5 py-28 sm:px-8 lg:px-10"
+        className="px-6 pb-28 sm:px-8 sm:pb-36"
       >
-        <div className="relative mx-auto max-w-[1280px]">
-          <div className="mx-auto max-w-[780px] text-center">
-            <div className="font-[var(--font-mono)] text-[9px] uppercase tracking-[0.19em] text-[#65dcfa]">
-              Campaign execution
+        <div className="relative mx-auto max-w-[1220px] overflow-hidden rounded-[34px] border border-[#c5ff0a]/15 bg-[#0b1118] px-7 py-16 text-center sm:px-12 sm:py-20">
+          <div className="absolute left-1/2 top-0 h-[300px] w-[700px] -translate-x-1/2 rounded-full bg-[#53ff72]/[0.07] blur-[100px]" />
+
+          <div className="relative">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-[#c5ff0a]/20 bg-[#c5ff0a]/[0.07] text-[#c5ff0a]">
+              <MessageSquareText
+                size={21}
+              />
             </div>
 
-            <h2 className="mt-5 text-[46px] font-normal leading-[1.04] tracking-[-0.03em] text-white sm:text-[58px]">
-              When the answer is PROMOTE,
-              <span className="text-[#758397]">
-                {" "}
-                the campaign takes shape.
+            <h2 className="mx-auto mt-7 max-w-[760px] text-[42px] font-extrabold leading-[1.04] tracking-[-0.045em] text-white sm:text-[58px]">
+              Find the release
+              <span className="block text-[#c5ff0a]">
+                worth talking about.
               </span>
             </h2>
 
-            <p className="mx-auto mt-5 max-w-[620px] text-[16px] font-normal leading-7 text-[#788598]">
-              ShipSpark turns the selected benefit into editable campaign messaging and can publish the Discord version directly.
+            <p className="mx-auto mt-5 max-w-[610px] text-[16px] font-semibold leading-8 text-[#9ba6b4]">
+              Start with one source or combine all of them for the strongest evidence.
             </p>
-          </div>
 
-          <div className="relative mt-16 min-h-[500px]">
-            <div className="absolute left-1/2 top-[46%] h-px w-[70%] -translate-x-1/2 bg-gradient-to-r from-transparent via-[#65dcfa]/20 to-transparent" />
-
-            <motion.div
-              animate={{
-                y: [
-                  0,
-                  -8,
-                  0,
-                ],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-              }}
-              className="absolute left-1/2 top-[44%] z-20 w-full max-w-[440px] -translate-x-1/2 -translate-y-1/2 rounded-[28px] border border-white/[0.08] bg-[#0d131e] p-7 shadow-[0_30px_100px_rgba(0,0,0,0.45)]"
-            >
-              <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.18em] text-[#667287]">
-                Winning angle
-              </div>
-
-              <div className="mt-5 text-[32px] font-normal leading-[1.06] tracking-[-0.025em] text-white">
-                Work anywhere.
-                <span className="block text-[#65dcfa]">
-                  Even without signal.
-                </span>
-              </div>
-
-              <div className="mt-7 flex items-center gap-2 font-[var(--font-mono)] text-[8px] uppercase tracking-[0.15em] text-[#667287]">
-                <Activity size={11} />
-                Ready for execution
-              </div>
-            </motion.div>
-
-            {[
-              {
-                icon:
-                  MessageCircle,
-                label:
-                  "Discord",
-                position:
-                  "left-[4%] top-[32%]",
-              },
-              {
-                icon:
-                  Users,
-                label:
-                  "Social",
-                position:
-                  "right-[4%] top-[32%]",
-              },
-              {
-                icon:
-                  RadioTower,
-                label:
-                  "Launch messaging",
-                position:
-                  "bottom-[6%] left-1/2 -translate-x-1/2",
-              },
-            ].map(
-              (
-                channel,
-                index,
-              ) => {
-                const Icon =
-                  channel.icon;
-
-                return (
-                  <motion.div
-                    key={
-                      channel.label
-                    }
-                    animate={{
-                      y: [
-                        0,
-                        -7,
-                        0,
-                      ],
-                    }}
-                    transition={{
-                      duration:
-                        4.1 +
-                        index *
-                          0.35,
-                      repeat:
-                        Infinity,
-                      delay:
-                        index *
-                        0.35,
-                    }}
-                    className={`absolute ${channel.position}`}
-                  >
-                    <div className="flex min-w-[205px] items-center justify-between rounded-2xl border border-white/[0.075] bg-white/[0.03] p-5 backdrop-blur-xl">
-                      <div>
-                        <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.15em] text-[#5e6b7f]">
-                          Destination
-                        </div>
-
-                        <div className="mt-2 text-[15px] font-normal text-[#e6edf6]">
-                          {
-                            channel.label
-                          }
-                        </div>
-                      </div>
-
-                      <div className="flex size-9 items-center justify-center rounded-xl bg-[#65dcfa]/10 text-[#65dcfa]">
-                        <Icon size={15} />
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              },
-            )}
-          </div>
-
-          <div className="flex justify-center">
             <Link
               href="/workspace"
-              className="group inline-flex h-12 items-center gap-4 rounded-xl bg-white px-6 text-[13px] font-medium text-[#08111d] transition hover:bg-[#dff8ff]"
+              className="group mt-8 inline-flex min-h-[54px] items-center justify-center gap-3 rounded-xl bg-[linear-gradient(105deg,#c5ff0a_0%,#53ff72_100%)] px-8 text-[14px] font-extrabold text-[#071006] shadow-[0_18px_50px_rgba(83,255,114,0.15)] transition hover:scale-[1.02] hover:brightness-110"
             >
-              Open release workspace
-
+              Open ShipSpark
               <ArrowRight
-                size={15}
-                className="transition group-hover:translate-x-1"
+                size={17}
+                className="transition-transform group-hover:translate-x-1"
               />
             </Link>
           </div>
         </div>
       </section>
-    </>
+    </main>
   );
 }
+
+export default LandingExperience;

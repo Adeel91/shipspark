@@ -17,7 +17,7 @@ export default function HomePage() {
             ShipSpark
           </span>
 
-          <span className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#4f5c70]">
+          <span className="font-[var(--font-main)] text-[8px] uppercase tracking-[0.16em] text-[#4f5c70]">
             Release intelligence
           </span>
         </div>

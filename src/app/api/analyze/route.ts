@@ -1132,17 +1132,27 @@ function storePayload(
   };
 }
 
-const GEMINI_MODELS = Array.from(
-  new Set(
-    [
-      process.env.GEMINI_MODEL?.trim(),
-      "gemini-3.7-flash",
-      "gemini-3.6-flash",
-      "gemini-3.5-flash",
-      "gemini-3.5-flash-lite",
-    ].filter(Boolean) as string[],
-  ),
-);
+const USE_DEV_GEMINI =
+  process.env.GEMINI_DEV_MODE ===
+  "true";
+
+const DEV_GEMINI_MODEL =
+  process.env.GEMINI_DEV_MODEL?.trim() ||
+  "gemini-3.5-flash-lite";
+
+const PRODUCTION_GEMINI_MODELS = [
+  "gemini-3.7-flash",
+  "gemini-3.6-flash",
+  "gemini-3.5-flash",
+  "gemini-3.5-flash-lite",
+];
+
+const GEMINI_MODELS =
+  USE_DEV_GEMINI
+    ? [
+        DEV_GEMINI_MODEL,
+      ]
+    : PRODUCTION_GEMINI_MODELS;
 
 function geminiErrorMessage(
   error: unknown,

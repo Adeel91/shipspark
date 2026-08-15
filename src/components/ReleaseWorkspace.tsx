@@ -1,6 +1,17 @@
 "use client";
 
 import {
+  WorkspacePrimaryTabs,
+  type WorkspacePrimaryTab,
+} from "./WorkspacePrimaryTabs";
+
+
+import {
+  IntelligenceExperienceV2,
+} from "./IntelligenceExperienceV2";
+
+
+import {
   AnalysisProgress,
 } from "./AnalysisProgress";
 
@@ -228,7 +239,7 @@ function ScoreBar({
           {label}
         </span>
 
-        <span className="font-[var(--font-mono)] text-[9px] text-[#7f91aa]">
+        <span className="font-[var(--font-main)] text-[11px] text-[#7f91aa]">
           {value}
         </span>
       </div>
@@ -677,7 +688,7 @@ export function ReleaseWorkspace() {
         id:
           "campaign",
         label:
-          "Campaign",
+          "Promote",
         icon:
           Target,
       },
@@ -704,16 +715,16 @@ export function ReleaseWorkspace() {
       <section className="rounded-[28px] border border-white/[0.075] bg-[#0a0f18]/90 p-5 shadow-[0_30px_100px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
         <div className="flex flex-col gap-3 border-b border-white/[0.055] pb-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.18em] text-[#68def9]">
+            <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.18em] text-[#c5ff0a]">
               Intelligence sources
             </div>
 
-            <div className="mt-3 text-[18px] font-normal text-[#e2ebf6]">
+            <div className="mt-3 text-[18px] font-normal text-[#f2f5f7]">
               Start with whatever you have.
             </div>
           </div>
 
-          <p className="max-w-[570px] text-[13px] font-normal leading-6 text-[#91a2b8]">
+          <p className="max-w-[570px] text-[14px] font-semibold leading-6 text-[#a7b0bd]">
             Add any one source or combine all three. More sources give ShipSpark stronger evidence, but none of them is required individually.
           </p>
         </div>
@@ -725,14 +736,14 @@ export function ReleaseWorkspace() {
           className="mt-5 space-y-3"
         >
           <div className="grid gap-3 xl:grid-cols-3">
-            <label className="rounded-2xl border border-white/[0.075] bg-[#070b12] px-4 py-3.5 transition focus-within:border-[#66ddf8]/35">
+            <label className="rounded-2xl border border-white/[0.075] bg-[#070b12] px-4 py-3.5 transition focus-within:border-[#c5ff0a]/35">
               <span className="mb-2 flex items-center justify-between gap-3">
-                <span className="flex items-center gap-2 font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#8293aa]">
+                <span className="flex items-center gap-2 font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#98a3b2]">
                   <AppWindow size={11} />
                   App Store
                 </span>
 
-                <span className="font-[var(--font-mono)] text-[7px] uppercase tracking-[0.13em] text-[#526176]">
+                <span className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.09em] text-[#9aa6b4]">
                   Optional
                 </span>
               </span>
@@ -750,18 +761,18 @@ export function ReleaseWorkspace() {
                   )
                 }
                 placeholder="https://apps.apple.com/..."
-                className="w-full bg-transparent text-[14px] font-normal text-[#edf4fc] outline-none placeholder:text-[#536176]"
+                className="w-full bg-transparent text-[15px] font-semibold text-[#f1f4f7] outline-none placeholder:text-[#536176]"
               />
             </label>
 
-            <label className="rounded-2xl border border-white/[0.075] bg-[#070b12] px-4 py-3.5 transition focus-within:border-[#66ddf8]/35">
+            <label className="rounded-2xl border border-white/[0.075] bg-[#070b12] px-4 py-3.5 transition focus-within:border-[#c5ff0a]/35">
               <span className="mb-2 flex items-center justify-between gap-3">
-                <span className="flex items-center gap-2 font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#8293aa]">
+                <span className="flex items-center gap-2 font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#98a3b2]">
                   <Store size={11} />
                   Google Play
                 </span>
 
-                <span className="font-[var(--font-mono)] text-[7px] uppercase tracking-[0.13em] text-[#526176]">
+                <span className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.09em] text-[#9aa6b4]">
                   Optional
                 </span>
               </span>
@@ -779,18 +790,18 @@ export function ReleaseWorkspace() {
                   )
                 }
                 placeholder="https://play.google.com/store/apps/details?id=..."
-                className="w-full bg-transparent text-[14px] font-normal text-[#edf4fc] outline-none placeholder:text-[#536176]"
+                className="w-full bg-transparent text-[15px] font-semibold text-[#f1f4f7] outline-none placeholder:text-[#536176]"
               />
             </label>
 
-            <label className="rounded-2xl border border-white/[0.075] bg-[#070b12] px-4 py-3.5 transition focus-within:border-[#66ddf8]/35">
+            <label className="rounded-2xl border border-white/[0.075] bg-[#070b12] px-4 py-3.5 transition focus-within:border-[#c5ff0a]/35">
               <span className="mb-2 flex items-center justify-between gap-3">
-                <span className="flex items-center gap-2 font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#8293aa]">
+                <span className="flex items-center gap-2 font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#98a3b2]">
                   <GitBranch size={11} />
                   GitHub
                 </span>
 
-                <span className="font-[var(--font-mono)] text-[7px] uppercase tracking-[0.13em] text-[#526176]">
+                <span className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.09em] text-[#9aa6b4]">
                   Optional
                 </span>
               </span>
@@ -808,13 +819,13 @@ export function ReleaseWorkspace() {
                   )
                 }
                 placeholder="https://github.com/owner/repository"
-                className="w-full bg-transparent text-[14px] font-normal text-[#edf4fc] outline-none placeholder:text-[#536176]"
+                className="w-full bg-transparent text-[15px] font-semibold text-[#f1f4f7] outline-none placeholder:text-[#536176]"
               />
             </label>
           </div>
 
           <div className="flex flex-col gap-4 rounded-2xl border border-white/[0.055] bg-white/[0.018] p-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap gap-x-5 gap-y-2 font-[var(--font-mono)] text-[7px] uppercase tracking-[0.13em] text-[#65758c]">
+            <div className="flex flex-wrap gap-x-5 gap-y-2 font-[var(--font-main)] text-[10px] uppercase tracking-[0.09em] text-[#a5b0bd]">
               <span>Store positioning</span>
               <span>Reviews</span>
               <span>Ratings</span>
@@ -828,7 +839,7 @@ export function ReleaseWorkspace() {
               disabled={
                 loading
               }
-              className="flex min-h-[48px] min-w-[190px] shrink-0 items-center justify-center gap-3 rounded-xl bg-white px-6 text-[13px] font-medium text-[#07101b] transition hover:bg-[#dff8ff] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex min-h-[48px] min-w-[190px] shrink-0 items-center justify-center gap-3 rounded-xl bg-[linear-gradient(110deg,#c5ff0a_0%,#53ff72_100%)] px-6 text-[13px] font-bold text-[#071006] shadow-[0_12px_34px_rgba(83,255,114,0.14)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -849,39 +860,26 @@ export function ReleaseWorkspace() {
         </form>
       </section>
 
-      <div className="flex gap-1 overflow-x-auto border-b border-white/[0.065]">
-        {tabs.map(
-          (tab) => {
-            const Icon =
-              tab.icon;
-
-            return (
-              <button
-                key={
-                  tab.id
-                }
-                type="button"
-                onClick={() =>
-                  setActiveTab(
-                    tab.id,
-                  )
-                }
-                className={`flex shrink-0 items-center gap-2 border-b px-4 pb-4 pt-2 text-[12px] font-normal transition ${
-                  activeTab ===
-                  tab.id
-                    ? "border-[#68def9] text-white"
-                    : "border-transparent text-[#7f90a7] hover:text-[#c6d2e1]"
-                }`}
-              >
-                <Icon size={13} />
-                {
-                  tab.label
-                }
-              </button>
-            );
-          },
-        )}
-      </div>
+      <WorkspacePrimaryTabs
+        activeTab={
+          activeTab
+        }
+        onChange={(
+          tab,
+        ) =>
+          setActiveTab(
+            tab as WorkspacePrimaryTab,
+          )
+        }
+        campaignReady={
+          Boolean(
+            result
+              ?.analysis
+              ?.campaign
+              ?.enabled,
+          )
+        }
+      />
 
       {loading && (
         <AnalysisProgress />
@@ -959,10 +957,10 @@ export function ReleaseWorkspace() {
                     <div className="flex items-center justify-between">
                       <Icon
                         size={17}
-                        className="text-[#68def9]"
+                        className="text-[#c5ff0a]"
                       />
 
-                      <span className="font-[var(--font-mono)] text-[8px] text-[#53647b]">
+                      <span className="font-[var(--font-main)] text-[10px] text-[#53647b]">
                         {
                           item.number
                         }
@@ -992,212 +990,18 @@ export function ReleaseWorkspace() {
         analysis &&
         activeTab ===
           "intelligence" && (
-          <div className="space-y-12">
-            <section className="grid gap-8 border-b border-white/[0.065] pb-10 lg:grid-cols-[1fr_1.3fr]">
-              <div>
-                <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.17em] text-[#718198]">
-                  Growth decision
-                </div>
-
-                <div className="mt-4 text-[54px] font-normal tracking-[-0.035em]">
-                  <DecisionTone
-                    decision={
-                      analysis.decision
-                    }
-                  />
-                </div>
-
-                <div className="mt-3 flex items-center gap-4">
-                  <span className="font-[var(--font-mono)] text-[9px] text-[#68def9]">
-                    {
-                      analysis.opportunityScore
-                    }
-                    /100 opportunity
-                  </span>
-
-                  <span className="font-[var(--font-mono)] text-[9px] text-[#718198]">
-                    {
-                      analysis.confidence
-                    }
-                    % confidence
-                  </span>
-                </div>
-
-                <p className="mt-6 max-w-[500px] text-[17px] font-normal leading-8 text-[#c1cede]">
-                  {
-                    analysis.oneLineVerdict
-                  }
-                </p>
-              </div>
-
-              <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-                <ScoreBar
-                  label="Change novelty"
-                  value={
-                    analysis.scores
-                      .changeNovelty
-                  }
-                />
-
-                <ScoreBar
-                  label="User value"
-                  value={
-                    analysis.scores
-                      .userValue
-                  }
-                />
-
-                <ScoreBar
-                  label="Review demand match"
-                  value={
-                    analysis.scores
-                      .reviewDemandMatch
-                  }
-                />
-
-                <ScoreBar
-                  label="Positioning gap"
-                  value={
-                    analysis.scores
-                      .positioningGap
-                  }
-                />
-
-                <ScoreBar
-                  label="Timing"
-                  value={
-                    analysis.scores
-                      .timing
-                  }
-                />
-
-                <ScoreBar
-                  label="Evidence quality"
-                  value={
-                    analysis.scores
-                      .evidenceQuality
-                  }
-                />
-              </div>
-            </section>
-
-            <section className="grid gap-10 lg:grid-cols-2">
-              <div>
-                <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.17em] text-[#68def9]">
-                  What actually changed
-                </div>
-
-                <h2 className="mt-4 text-[29px] font-normal leading-[1.15] tracking-[-0.025em] text-white">
-                  {
-                    analysis.strategicInsight
-                      .whatChanged
-                  }
-                </h2>
-
-                <div className="mt-8">
-                  <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#718198]">
-                    Why users care
-                  </div>
-
-                  <p className="mt-3 text-[15px] font-normal leading-7 text-[#b1bfd1]">
-                    {
-                      analysis.strategicInsight
-                        .whyUsersCare
-                    }
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.17em] text-[#8b99ff]">
-                  Who should care
-                </div>
-
-                <h2 className="mt-4 text-[29px] font-normal leading-[1.15] tracking-[-0.025em] text-white">
-                  {
-                    analysis.strategicInsight
-                      .whoCares
-                  }
-                </h2>
-
-                <div className="mt-8">
-                  <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#718198]">
-                    Why now
-                  </div>
-
-                  <p className="mt-3 text-[15px] font-normal leading-7 text-[#b1bfd1]">
-                    {
-                      analysis.strategicInsight
-                        .whyNow
-                    }
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            <section className="grid gap-8 border-y border-white/[0.065] py-9 lg:grid-cols-3">
-              <div>
-                <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#68def9]">
-                  Strongest reason
-                </div>
-
-                <p className="mt-4 text-[15px] font-normal leading-7 text-[#c0cddd]">
-                  {
-                    analysis.strategicInsight
-                      .strongestReason
-                  }
-                </p>
-              </div>
-
-              <div>
-                <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-amber-300">
-                  Best argument against
-                </div>
-
-                <p className="mt-4 text-[15px] font-normal leading-7 text-[#c0cddd]">
-                  {
-                    analysis.strategicInsight
-                      .counterArgument
-                  }
-                </p>
-              </div>
-
-              <div>
-                <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#8b99ff]">
-                  Recommended action
-                </div>
-
-                <p className="mt-4 text-[15px] font-normal leading-7 text-[#c0cddd]">
-                  {
-                    analysis.strategicInsight
-                      .recommendation
-                  }
-                </p>
-              </div>
-            </section>
-
-            <section>
-              <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.17em] text-[#718198]">
-                Release state
-              </div>
-
-              <div className="mt-4 grid gap-8 lg:grid-cols-[0.7fr_1.3fr]">
-                <div className="text-[25px] font-normal tracking-[-0.02em] text-white">
-                  {analysis.releaseState.status.replaceAll(
-                    "_",
-                    " ",
-                  )}
-                </div>
-
-                <p className="text-[15px] font-normal leading-7 text-[#afbdd0]">
-                  {
-                    analysis.releaseState
-                      .explanation
-                  }
-                </p>
-              </div>
-            </section>
-          </div>
+          <IntelligenceExperienceV2
+            analysis={
+              analysis
+            }
+            onNavigate={(
+              tab,
+            ) =>
+              setActiveTab(
+                tab,
+              )
+            }
+          />
         )}
 
       {!loading &&
@@ -1208,7 +1012,7 @@ export function ReleaseWorkspace() {
           <div className="space-y-12">
             <section className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr]">
               <div>
-                <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.17em] text-[#68def9]">
+                <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.17em] text-[#c5ff0a]">
                   Review intelligence
                 </div>
 
@@ -1233,7 +1037,7 @@ export function ReleaseWorkspace() {
             </section>
 
             <section>
-              <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.17em] text-[#718198]">
+              <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.17em] text-[#acb6c2]">
                 Dominant customer themes
               </div>
 
@@ -1254,20 +1058,20 @@ export function ReleaseWorkspace() {
                           }
                         </span>
 
-                        <span className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.12em] text-[#7f91aa]">
+                        <span className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.12em] text-[#7f91aa]">
                           {
                             theme.strength
                           }
                         </span>
                       </div>
 
-                      <div className="mt-3 font-[var(--font-mono)] text-[8px] uppercase tracking-[0.12em] text-[#68def9]">
+                      <div className="mt-3 font-[var(--font-main)] text-[10px] uppercase tracking-[0.12em] text-[#c5ff0a]">
                         {
                           theme.sentiment
                         }
                       </div>
 
-                      <p className="mt-4 text-[13px] font-normal leading-6 text-[#9eafc3]">
+                      <p className="mt-4 text-[14px] font-semibold leading-6 text-[#9eafc3]">
                         {
                           theme.releaseRelevance
                         }
@@ -1339,7 +1143,7 @@ export function ReleaseWorkspace() {
             {analysis.reviewIntelligence.crossPlatformDifferences.length >
               0 && (
               <section className="border-t border-white/[0.065] pt-9">
-                <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.17em] text-[#8b99ff]">
+                <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.17em] text-[#8b99ff]">
                   Cross platform differences
                 </div>
 
@@ -1391,7 +1195,7 @@ export function ReleaseWorkspace() {
                   </p>
 
                   <div className="mt-8 border-t border-white/[0.065] pt-6">
-                    <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#718198]">
+                    <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#acb6c2]">
                       Next step
                     </div>
 
@@ -1407,7 +1211,7 @@ export function ReleaseWorkspace() {
             ) : (
               <div className="space-y-10">
                 <section className="border-b border-white/[0.065] pb-9">
-                  <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.17em] text-[#68def9]">
+                  <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.17em] text-[#c5ff0a]">
                     Winning angle
                   </div>
 
@@ -1429,7 +1233,7 @@ export function ReleaseWorkspace() {
                 <section>
                   <div className="flex items-start justify-between gap-5">
                     <div>
-                      <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#718198]">
+                      <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#acb6c2]">
                         Campaign headline
                       </div>
 
@@ -1460,7 +1264,7 @@ export function ReleaseWorkspace() {
                 <section className="grid gap-9 lg:grid-cols-2">
                   <div>
                     <div className="mb-4 flex items-center justify-between">
-                      <span className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#718198]">
+                      <span className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#acb6c2]">
                         Social
                       </span>
 
@@ -1491,13 +1295,13 @@ export function ReleaseWorkspace() {
                         )
                       }
                       rows={10}
-                      className="w-full resize-none rounded-[22px] border border-white/[0.075] bg-[#080d15] p-5 text-[14px] font-normal leading-7 text-[#d4deeb] outline-none focus:border-[#68def9]/30"
+                      className="w-full resize-none rounded-[22px] border border-white/[0.075] bg-[#080d15] p-5 text-[14px] font-normal leading-7 text-[#d4deeb] outline-none focus:border-[#c5ff0a]/30"
                     />
                   </div>
 
                   <div>
                     <div className="mb-4 flex items-center justify-between">
-                      <span className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#718198]">
+                      <span className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#acb6c2]">
                         Discord
                       </span>
 
@@ -1528,7 +1332,7 @@ export function ReleaseWorkspace() {
                         )
                       }
                       rows={10}
-                      className="w-full resize-none rounded-[22px] border border-white/[0.075] bg-[#080d15] p-5 text-[14px] font-normal leading-7 text-[#d4deeb] outline-none focus:border-[#68def9]/30"
+                      className="w-full resize-none rounded-[22px] border border-white/[0.075] bg-[#080d15] p-5 text-[14px] font-normal leading-7 text-[#d4deeb] outline-none focus:border-[#c5ff0a]/30"
                     />
                   </div>
                 </section>
@@ -1576,7 +1380,7 @@ export function ReleaseWorkspace() {
             ) : (
               <div className="grid gap-12 lg:grid-cols-[0.75fr_1.25fr]">
                 <section>
-                  <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.17em] text-[#68def9]">
+                  <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.17em] text-[#c5ff0a]">
                     Discord publishing
                   </div>
 
@@ -1602,7 +1406,7 @@ export function ReleaseWorkspace() {
                       )
                     }
                     placeholder="https://discord.com/api/webhooks/..."
-                    className="mt-7 w-full rounded-xl border border-white/[0.075] bg-[#080d15] px-4 py-3.5 text-[13px] text-white outline-none focus:border-[#68def9]/30"
+                    className="mt-7 w-full rounded-xl border border-white/[0.075] bg-[#080d15] px-4 py-3.5 text-[13px] text-white outline-none focus:border-[#c5ff0a]/30"
                   />
 
                   {publishError && (
@@ -1647,7 +1451,7 @@ export function ReleaseWorkspace() {
                 </section>
 
                 <section className="rounded-[28px] border border-white/[0.075] bg-[#0a1019] p-7">
-                  <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#718198]">
+                  <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#acb6c2]">
                     Preview
                   </div>
 
@@ -1661,7 +1465,7 @@ export function ReleaseWorkspace() {
                         ShipSpark
                       </div>
 
-                      <div className="font-[var(--font-mono)] text-[7px] uppercase text-[#718198]">
+                      <div className="font-[var(--font-main)] text-[10px] uppercase text-[#acb6c2]">
                         App
                       </div>
                     </div>
@@ -1683,7 +1487,7 @@ export function ReleaseWorkspace() {
           "history" && (
           <div>
             <div className="border-b border-white/[0.065] pb-7">
-              <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.17em] text-[#68def9]">
+              <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.17em] text-[#c5ff0a]">
                 Release history
               </div>
 
@@ -1716,7 +1520,7 @@ export function ReleaseWorkspace() {
                           }
                         </div>
 
-                        <div className="mt-1 font-[var(--font-mono)] text-[8px] text-[#64758c]">
+                        <div className="mt-1 font-[var(--font-main)] text-[10px] text-[#64758c]">
                           {
                             item.repository
                           }
@@ -1729,7 +1533,7 @@ export function ReleaseWorkspace() {
                         </p>
                       </div>
 
-                      <span className="font-[var(--font-mono)] text-[9px] text-[#68def9]">
+                      <span className="font-[var(--font-main)] text-[11px] text-[#c5ff0a]">
                         {
                           item.decision
                         }{" "}
@@ -1739,7 +1543,7 @@ export function ReleaseWorkspace() {
                         }
                       </span>
 
-                      <span className="font-[var(--font-mono)] text-[8px] uppercase text-[#718198]">
+                      <span className="font-[var(--font-main)] text-[10px] uppercase text-[#acb6c2]">
                         {
                           item.status
                         }

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Environment,
   Float,
   RoundedBox,
   Sparkles,
@@ -15,250 +16,636 @@ import {
 import * as THREE from "three";
 
 function Phone() {
-  const phone = useRef<THREE.Group>(null);
-  const core = useRef<THREE.Mesh>(null);
-  const ringA = useRef<THREE.Mesh>(null);
-  const ringB = useRef<THREE.Mesh>(null);
+  const group =
+    useRef<THREE.Group>(
+      null,
+    );
 
-  useFrame((state) => {
-    const time =
-      state.clock.elapsedTime;
+  const elapsed =
+    useRef(0);
 
-    if (phone.current) {
-      phone.current.rotation.y =
-        -0.12 +
-        Math.sin(time * 0.34) *
-          0.13;
+  useFrame(
+    (
+      _state,
+      delta,
+    ) => {
+      elapsed.current +=
+        delta;
 
-      phone.current.rotation.x =
-        0.05 +
-        Math.sin(time * 0.27) *
-          0.035;
+      if (
+        !group.current
+      ) {
+        return;
+      }
 
-      phone.current.rotation.z =
-        -0.035 +
-        Math.sin(time * 0.22) *
-          0.025;
-    }
+      /*
+       * Smooth premium product animation.
+       * Never spins around completely.
+       */
+      group.current.rotation.x =
+        -0.045 +
+        Math.sin(
+          elapsed.current *
+            0.45,
+        ) *
+          0.018;
 
-    if (core.current) {
-      const pulse =
-        1 +
-        Math.sin(time * 2.7) *
-          0.11;
+      group.current.rotation.y =
+        -0.13 +
+        Math.sin(
+          elapsed.current *
+            0.32,
+        ) *
+          0.065;
 
-      core.current.scale.setScalar(
-        pulse,
-      );
-    }
-
-    if (ringA.current) {
-      ringA.current.rotation.z =
-        time * 0.34;
-    }
-
-    if (ringB.current) {
-      ringB.current.rotation.z =
-        time * -0.42;
-    }
-  });
+      group.current.rotation.z =
+        -0.015 +
+        Math.sin(
+          elapsed.current *
+            0.38,
+        ) *
+          0.018;
+    },
+  );
 
   return (
-    <group ref={phone}>
-      <RoundedBox
-        args={[2.55, 5.15, 0.36]}
-        radius={0.29}
-        smoothness={8}
-      >
-        <meshStandardMaterial
-          color="#151821"
-          metalness={0.82}
-          roughness={0.17}
-        />
-      </RoundedBox>
-
-      <RoundedBox
-        args={[2.28, 4.82, 0.05]}
-        radius={0.23}
-        smoothness={8}
-        position={[0, 0, 0.21]}
-      >
-        <meshStandardMaterial
-          color="#070a12"
-          emissive="#102753"
-          emissiveIntensity={0.38}
-        />
-      </RoundedBox>
-
-      <RoundedBox
-        args={[0.75, 0.18, 0.055]}
-        radius={0.09}
-        smoothness={6}
-        position={[
-          0,
-          2.03,
-          0.255,
+    <Float
+      speed={1.15}
+      rotationIntensity={0}
+      floatIntensity={0.28}
+      floatingRange={[
+        -0.1,
+        0.1,
+      ]}
+    >
+      <group
+        ref={group}
+        rotation={[
+          -0.045,
+          -0.13,
+          -0.015,
         ]}
       >
-        <meshStandardMaterial color="#010205" />
-      </RoundedBox>
+        {/* TITANIUM OUTER CHASSIS */}
+        <RoundedBox
+          args={[
+            3.18,
+            6.48,
+            0.36,
+          ]}
+          radius={0.43}
+          smoothness={12}
+        >
+          <meshPhysicalMaterial
+            color="#8c918a"
+            metalness={0.95}
+            roughness={0.16}
+            clearcoat={0.75}
+            clearcoatRoughness={0.14}
+          />
+        </RoundedBox>
 
-      <mesh
-        ref={ringA}
-        position={[
-          0,
-          0.6,
-          0.27,
-        ]}
-      >
-        <ringGeometry
-          args={[0.96, 0.982, 100]}
-        />
+        {/* DARK SIDE FRAME */}
+        <RoundedBox
+          args={[
+            3.06,
+            6.36,
+            0.385,
+          ]}
+          radius={0.4}
+          smoothness={12}
+          position={[
+            0,
+            0,
+            0.015,
+          ]}
+        >
+          <meshPhysicalMaterial
+            color="#252a25"
+            metalness={0.88}
+            roughness={0.2}
+            clearcoat={0.45}
+          />
+        </RoundedBox>
 
-        <meshBasicMaterial
-          color="#57e6ff"
-          transparent
-          opacity={0.28}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+        {/* BLACK FRONT BEZEL */}
+        <RoundedBox
+          args={[
+            2.92,
+            6.2,
+            0.19,
+          ]}
+          radius={0.355}
+          smoothness={12}
+          position={[
+            0,
+            0,
+            0.185,
+          ]}
+        >
+          <meshStandardMaterial
+            color="#020302"
+            metalness={0.22}
+            roughness={0.24}
+          />
+        </RoundedBox>
 
-      <mesh
-        ref={ringB}
-        position={[
-          0,
-          0.6,
-          0.28,
-        ]}
-      >
-        <ringGeometry
-          args={[0.69, 0.712, 100]}
-        />
+        {/* OLED GLASS DISPLAY */}
+        <RoundedBox
+          args={[
+            2.78,
+            6.04,
+            0.075,
+          ]}
+          radius={0.3}
+          smoothness={12}
+          position={[
+            0,
+            0,
+            0.305,
+          ]}
+        >
+          <meshPhysicalMaterial
+            color="#030806"
+            emissive="#06170b"
+            emissiveIntensity={0.4}
+            metalness={0.05}
+            roughness={0.08}
+            clearcoat={1}
+            clearcoatRoughness={0.04}
+            reflectivity={1}
+          />
+        </RoundedBox>
 
-        <meshBasicMaterial
-          color="#f4f2ed"
-          transparent
-          opacity={0.78}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+        {/* SUBTLE SCREEN GLOW */}
+        <RoundedBox
+          args={[
+            2.62,
+            5.87,
+            0.018,
+          ]}
+          radius={0.26}
+          smoothness={10}
+          position={[
+            0,
+            0,
+            0.355,
+          ]}
+        >
+          <meshBasicMaterial
+            color="#07130a"
+            transparent
+            opacity={0.72}
+          />
+        </RoundedBox>
 
-      <mesh
-        ref={core}
-        position={[
-          0,
-          0.6,
-          0.31,
-        ]}
-      >
-        <sphereGeometry
-          args={[0.205, 40, 40]}
-        />
+        {/* DYNAMIC ISLAND */}
+        <RoundedBox
+          args={[
+            0.87,
+            0.245,
+            0.055,
+          ]}
+          radius={0.12}
+          smoothness={10}
+          position={[
+            0,
+            2.55,
+            0.385,
+          ]}
+        >
+          <meshPhysicalMaterial
+            color="#000000"
+            roughness={0.08}
+            clearcoat={1}
+          />
+        </RoundedBox>
 
-        <meshStandardMaterial
-          color="#ffffff"
-          emissive="#57e6ff"
-          emissiveIntensity={4}
-        />
-      </mesh>
+        {/* FRONT CAMERA */}
+        <mesh
+          position={[
+            0.27,
+            2.55,
+            0.416,
+          ]}
+        >
+          <circleGeometry
+            args={[
+              0.045,
+              32,
+            ]}
+          />
 
-      <RoundedBox
-        args={[1.7, 0.55, 0.045]}
-        radius={0.14}
-        smoothness={6}
-        position={[
-          0,
-          -0.72,
-          0.255,
-        ]}
-      >
-        <meshStandardMaterial
-          color="#122239"
-          emissive="#276d80"
-          emissiveIntensity={0.35}
-        />
-      </RoundedBox>
+          <meshPhysicalMaterial
+            color="#08110c"
+            emissive="#17291c"
+            emissiveIntensity={0.25}
+            roughness={0.05}
+            clearcoat={1}
+          />
+        </mesh>
 
-      <RoundedBox
-        args={[1.42, 0.4, 0.045]}
-        radius={0.11}
-        smoothness={6}
-        position={[
-          0,
-          -1.43,
-          0.255,
-        ]}
-      >
-        <meshStandardMaterial
-          color="#10131a"
-        />
-      </RoundedBox>
-    </group>
+        {/* RELEASE INTELLIGENCE OUTER RING */}
+        <mesh
+          position={[
+            0,
+            0.92,
+            0.405,
+          ]}
+        >
+          <torusGeometry
+            args={[
+              1.02,
+              0.021,
+              18,
+              140,
+            ]}
+          />
+
+          <meshStandardMaterial
+            color="#53ff72"
+            emissive="#53ff72"
+            emissiveIntensity={1.45}
+          />
+        </mesh>
+
+        {/* SOFT OUTER RING */}
+        <mesh
+          position={[
+            0,
+            0.92,
+            0.397,
+          ]}
+        >
+          <torusGeometry
+            args={[
+              1.17,
+              0.009,
+              16,
+              140,
+            ]}
+          />
+
+          <meshBasicMaterial
+            color="#53ff72"
+            transparent
+            opacity={0.2}
+          />
+        </mesh>
+
+        {/* INNER LIME RING */}
+        <mesh
+          position={[
+            0,
+            0.92,
+            0.415,
+          ]}
+        >
+          <torusGeometry
+            args={[
+              0.71,
+              0.018,
+              18,
+              140,
+            ]}
+          />
+
+          <meshStandardMaterial
+            color="#c5ff0a"
+            emissive="#c5ff0a"
+            emissiveIntensity={1.25}
+          />
+        </mesh>
+
+        {/* SIGNAL CORE */}
+        <mesh
+          position={[
+            0,
+            0.92,
+            0.435,
+          ]}
+        >
+          <circleGeometry
+            args={[
+              0.18,
+              48,
+            ]}
+          />
+
+          <meshStandardMaterial
+            color="#efffc9"
+            emissive="#c5ff0a"
+            emissiveIntensity={1.3}
+          />
+        </mesh>
+
+        {/* MAIN INTELLIGENCE CARD */}
+        <RoundedBox
+          args={[
+            1.92,
+            0.57,
+            0.045,
+          ]}
+          radius={0.14}
+          smoothness={10}
+          position={[
+            0,
+            -0.72,
+            0.41,
+          ]}
+        >
+          <meshPhysicalMaterial
+            color="#365b1d"
+            emissive="#53ff72"
+            emissiveIntensity={0.26}
+            roughness={0.22}
+            clearcoat={0.7}
+          />
+        </RoundedBox>
+
+        {/* CARD ACCENT */}
+        <RoundedBox
+          args={[
+            1.48,
+            0.105,
+            0.024,
+          ]}
+          radius={0.045}
+          smoothness={6}
+          position={[
+            -0.06,
+            -0.72,
+            0.442,
+          ]}
+        >
+          <meshStandardMaterial
+            color="#c5ff0a"
+            emissive="#c5ff0a"
+            emissiveIntensity={0.65}
+          />
+        </RoundedBox>
+
+        {/* SECONDARY INTELLIGENCE CARD */}
+        <RoundedBox
+          args={[
+            1.62,
+            0.49,
+            0.04,
+          ]}
+          radius={0.12}
+          smoothness={10}
+          position={[
+            0,
+            -1.59,
+            0.408,
+          ]}
+        >
+          <meshPhysicalMaterial
+            color="#101810"
+            emissive="#16341a"
+            emissiveIntensity={0.3}
+            roughness={0.28}
+            clearcoat={0.5}
+          />
+        </RoundedBox>
+
+        {/* SECONDARY SIGNAL */}
+        <mesh
+          position={[
+            -0.56,
+            -1.59,
+            0.44,
+          ]}
+        >
+          <circleGeometry
+            args={[
+              0.06,
+              32,
+            ]}
+          />
+
+          <meshStandardMaterial
+            color="#53ff72"
+            emissive="#53ff72"
+            emissiveIntensity={1.6}
+          />
+        </mesh>
+
+        {/* HOME INDICATOR */}
+        <RoundedBox
+          args={[
+            0.82,
+            0.055,
+            0.018,
+          ]}
+          radius={0.025}
+          smoothness={6}
+          position={[
+            0,
+            -2.72,
+            0.402,
+          ]}
+        >
+          <meshBasicMaterial
+            color="#d7ddd7"
+            transparent
+            opacity={0.78}
+          />
+        </RoundedBox>
+
+        {/* ACTION BUTTON */}
+        <RoundedBox
+          args={[
+            0.052,
+            0.34,
+            0.13,
+          ]}
+          radius={0.025}
+          smoothness={5}
+          position={[
+            -1.625,
+            1.92,
+            0,
+          ]}
+        >
+          <meshPhysicalMaterial
+            color="#737972"
+            metalness={0.95}
+            roughness={0.16}
+          />
+        </RoundedBox>
+
+        {/* VOLUME UP */}
+        <RoundedBox
+          args={[
+            0.052,
+            0.58,
+            0.13,
+          ]}
+          radius={0.025}
+          smoothness={5}
+          position={[
+            -1.625,
+            1.22,
+            0,
+          ]}
+        >
+          <meshPhysicalMaterial
+            color="#737972"
+            metalness={0.95}
+            roughness={0.16}
+          />
+        </RoundedBox>
+
+        {/* VOLUME DOWN */}
+        <RoundedBox
+          args={[
+            0.052,
+            0.58,
+            0.13,
+          ]}
+          radius={0.025}
+          smoothness={5}
+          position={[
+            -1.625,
+            0.52,
+            0,
+          ]}
+        >
+          <meshPhysicalMaterial
+            color="#737972"
+            metalness={0.95}
+            roughness={0.16}
+          />
+        </RoundedBox>
+
+        {/* POWER BUTTON */}
+        <RoundedBox
+          args={[
+            0.052,
+            0.86,
+            0.13,
+          ]}
+          radius={0.025}
+          smoothness={5}
+          position={[
+            1.625,
+            1.05,
+            0,
+          ]}
+        >
+          <meshPhysicalMaterial
+            color="#737972"
+            metalness={0.95}
+            roughness={0.16}
+          />
+        </RoundedBox>
+      </group>
+    </Float>
   );
 }
 
 function Scene() {
   return (
     <>
-      <ambientLight intensity={1.2} />
+      <ambientLight
+        intensity={0.58}
+      />
 
+      {/* WHITE PRODUCT LIGHT */}
       <directionalLight
-        position={[5, 6, 8]}
-        intensity={3}
+        position={[
+          4,
+          6,
+          7,
+        ]}
+        intensity={2.6}
+        color="#ffffff"
+      />
+
+      {/* TITANIUM EDGE LIGHT */}
+      <directionalLight
+        position={[
+          -5,
+          2,
+          5,
+        ]}
+        intensity={1.6}
+        color="#dce3da"
+      />
+
+      {/* SHIPSPARK GREEN REFLECTION */}
+      <pointLight
+        position={[
+          3.5,
+          -0.4,
+          3,
+        ]}
+        intensity={8}
+        distance={7}
+        color="#53ff72"
       />
 
       <pointLight
-        position={[-4, 2, 4]}
-        intensity={18}
-        distance={13}
-        color="#5970ff"
+        position={[
+          -3,
+          2.8,
+          3,
+        ]}
+        intensity={5}
+        distance={6}
+        color="#c5ff0a"
       />
 
-      <pointLight
-        position={[4, -2, 4]}
-        intensity={16}
-        distance={12}
-        color="#57e6ff"
-      />
+      <Phone />
 
       <Sparkles
-        count={58}
-        scale={[7, 7, 4]}
-        size={1.6}
-        speed={0.2}
-        opacity={0.34}
-        color="#dce6ff"
+        count={26}
+        scale={[
+          6,
+          7,
+          3,
+        ]}
+        size={0.7}
+        speed={0.14}
+        opacity={0.24}
+        color="#c5ff0a"
       />
 
-      <Float
-        speed={1.25}
-        rotationIntensity={0.08}
-        floatIntensity={0.48}
-      >
-        <Phone />
-      </Float>
+      <Environment
+        preset="city"
+      />
     </>
   );
 }
 
 export function HeroScene() {
   return (
-    <Canvas
-      camera={{
-        position: [
-          0,
-          0.05,
-          7.8,
-        ],
-        fov: 37,
-      }}
-      dpr={[1, 1.5]}
-      gl={{
-        antialias: true,
-        alpha: true,
-      }}
-    >
-      <Scene />
-    </Canvas>
+    <div className="h-full w-full">
+      <Canvas
+        camera={{
+          position: [
+            0,
+            0,
+            8.6,
+          ],
+          fov: 42,
+        }}
+        dpr={[
+          1,
+          1.5,
+        ]}
+        gl={{
+          alpha: true,
+          antialias: true,
+          powerPreference:
+            "high-performance",
+        }}
+      >
+        <Scene />
+      </Canvas>
+    </div>
   );
 }
+
+export default HeroScene;

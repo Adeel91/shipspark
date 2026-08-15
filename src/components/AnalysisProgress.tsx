@@ -146,9 +146,9 @@ export function AnalysisProgress() {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute inset-0 rounded-full border border-[#68def9]/20"
+          className="absolute inset-0 rounded-full border border-[#c5ff0a]/20"
         >
-          <div className="absolute left-1/2 top-[-4px] size-2 -translate-x-1/2 rounded-full bg-[#68def9] shadow-[0_0_20px_rgba(104,222,249,0.9)]" />
+          <div className="absolute left-1/2 top-[-4px] size-2 -translate-x-1/2 rounded-full bg-[#c5ff0a] shadow-[0_0_20px_rgba(197,255,10,0.9)]" />
         </motion.div>
 
         <motion.div
@@ -178,14 +178,14 @@ export function AnalysisProgress() {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="flex size-12 items-center justify-center rounded-2xl border border-[#68def9]/20 bg-[#68def9]/[0.07] text-[#68def9]"
+          className="flex size-12 items-center justify-center rounded-2xl border border-[#c5ff0a]/20 bg-[#c5ff0a]/[0.07] text-[#c5ff0a]"
         >
           <Sparkles size={19} />
         </motion.div>
       </div>
 
       <div className="mt-8 text-center">
-        <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.2em] text-[#68def9]">
+        <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.2em] text-[#c5ff0a]">
           Release intelligence
         </div>
 
@@ -200,11 +200,11 @@ export function AnalysisProgress() {
 
       <div className="mt-9">
         <div className="flex items-center justify-between">
-          <span className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.16em] text-[#65758c]">
+          <span className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.16em] text-[#a5b0bd]">
             Estimated progress
           </span>
 
-          <span className="font-[var(--font-mono)] text-[10px] text-[#9aabc0]">
+          <span className="font-[var(--font-main)] text-[10px] text-[#9aabc0]">
             {progress}%
           </span>
         </div>
@@ -218,7 +218,7 @@ export function AnalysisProgress() {
               duration: 0.35,
               ease: "easeOut",
             }}
-            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#657aff] via-[#6b9cff] to-[#68def9]"
+            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#657aff] via-[#6b9cff] to-[#c5ff0a]"
           />
 
           <motion.div
@@ -265,7 +265,7 @@ export function AnalysisProgress() {
                 <div
                   className={`relative z-10 flex size-9 items-center justify-center rounded-xl border transition ${
                     complete
-                      ? "border-[#68def9]/20 bg-[#68def9]/[0.08] text-[#68def9]"
+                      ? "border-[#c5ff0a]/20 bg-[#c5ff0a]/[0.08] text-[#c5ff0a]"
                       : active
                         ? "border-[#788cff]/25 bg-[#788cff]/[0.08] text-[#9aa8ff]"
                         : "border-white/[0.065] bg-white/[0.02] text-[#4f5d71]"
@@ -311,9 +311,9 @@ export function AnalysisProgress() {
                   </div>
                 </div>
 
-                <div className="font-[var(--font-mono)] text-[8px] uppercase tracking-[0.13em]">
+                <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.13em]">
                   {complete && (
-                    <span className="text-[#68def9]">
+                    <span className="text-[#c5ff0a]">
                       passed
                     </span>
                   )}
@@ -345,7 +345,7 @@ export function AnalysisProgress() {
                       repeat: Infinity,
                       ease: "linear",
                     }}
-                    className="absolute bottom-0 left-0 h-px w-20 bg-gradient-to-r from-transparent via-[#68def9] to-transparent"
+                    className="absolute bottom-0 left-0 h-px w-20 bg-gradient-to-r from-transparent via-[#c5ff0a] to-transparent"
                   />
                 )}
               </div>
@@ -368,7 +368,7 @@ export function AnalysisProgress() {
         >
           <LoaderCircle
             size={13}
-            className="animate-spin text-[#68def9]"
+            className="animate-spin text-[#c5ff0a]"
           />
 
           Finalizing the decision with Gemini

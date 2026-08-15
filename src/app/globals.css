@@ -1,9 +1,78 @@
 @import "tailwindcss";
 
-html {
-  scroll-behavior: smooth;
+:root {
+  --font-main: "Nunito Sans", sans-serif;
+
+  --shipspark-lime: #c5ff0a;
+  --shipspark-green: #53ff72;
+  --shipspark-mint: #00f5a0;
+
+  --shipspark-bg: #070a0f;
+  --shipspark-panel: #0b1018;
+  --shipspark-panel-soft: #0d131c;
+
+  --shipspark-text: #f7f8fa;
+  --shipspark-muted: #aab3bf;
+  --shipspark-dim: #818c9b;
+
+  color-scheme: dark;
 }
 
-button {
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--shipspark-bg);
+}
+
+body {
+  margin: 0;
+  background: var(--shipspark-bg);
+  color: var(--shipspark-text);
+
+  font-family:
+    var(--font-main),
+    sans-serif;
+
+  font-weight: 500;
+}
+
+button,
+input,
+textarea,
+select,
+a {
+  font-family:
+    var(--font-main),
+    sans-serif;
+}
+
+button,
+a {
   cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family:
+    var(--font-main),
+    sans-serif;
+
+  letter-spacing: -0.035em;
+}
+
+::selection {
+  background: rgba(197, 255, 10, 0.28);
+  color: #ffffff;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #697586;
 }
