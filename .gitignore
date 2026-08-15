@@ -18,5 +18,3 @@ dist/
 
 coverage/
 *.tsbuildinfo
-.vercel
-.env*

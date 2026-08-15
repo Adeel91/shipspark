@@ -24,26 +24,26 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-9 md:flex">
-          <a
+          <Link
             href="/#how-it-works"
             className="text-[11px] font-extrabold uppercase tracking-[0.15em] text-[#788494] transition hover:text-[#c5ff0a]"
           >
             Evidence
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/#decision"
             className="text-[11px] font-extrabold uppercase tracking-[0.15em] text-[#788494] transition hover:text-[#c5ff0a]"
           >
             Decision
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/#action"
             className="text-[11px] font-extrabold uppercase tracking-[0.15em] text-[#788494] transition hover:text-[#c5ff0a]"
           >
             Action
-          </a>
+          </Link>
         </nav>
 
         <Link

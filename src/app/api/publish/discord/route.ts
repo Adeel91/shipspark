@@ -9,6 +9,9 @@ function validateWebhook(value: string) {
     throw new Error("Enter a valid Discord webhook URL.");
   }
 
+  const validProtocol =
+    url.protocol === "https:";
+
   const validHost =
     url.hostname === "discord.com" ||
     url.hostname === "discordapp.com";
@@ -16,7 +19,11 @@ function validateWebhook(value: string) {
   const validPath =
     url.pathname.startsWith("/api/webhooks/");
 
-  if (!validHost || !validPath) {
+  if (
+    !validProtocol ||
+    !validHost ||
+    !validPath
+  ) {
     throw new Error("Enter a valid Discord webhook URL.");
   }
 

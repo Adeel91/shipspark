@@ -16,7 +16,6 @@ import {
 } from "./AnalysisProgress";
 
 import {
-  Activity,
   AlertCircle,
   AppWindow,
   ArrowRight,
@@ -25,7 +24,6 @@ import {
   CheckCircle2,
   Copy,
   GitBranch,
-  History,
   LoaderCircle,
   MessageSquareText,
   RadioTower,
@@ -34,11 +32,9 @@ import {
   Sparkles,
   Store,
   Target,
-  Users,
 } from "lucide-react";
 import {
   FormEvent,
-  useEffect,
   useState,
 } from "react";
 
@@ -188,74 +184,6 @@ type HistoryItem = {
 const historyKey =
   "shipspark_release_history_v2";
 
-function DecisionTone({
-  decision,
-}: {
-  decision:
-    | "PROMOTE"
-    | "WAIT"
-    | "SKIP";
-}) {
-  if (
-    decision ===
-    "PROMOTE"
-  ) {
-    return (
-      <span className="text-[#76e7ff]">
-        PROMOTE
-      </span>
-    );
-  }
-
-  if (
-    decision ===
-    "WAIT"
-  ) {
-    return (
-      <span className="text-amber-300">
-        WAIT
-      </span>
-    );
-  }
-
-  return (
-    <span className="text-[#aeb9c9]">
-      SKIP
-    </span>
-  );
-}
-
-function ScoreBar({
-  label,
-  value,
-}: {
-  label: string;
-  value: number;
-}) {
-  return (
-    <div>
-      <div className="flex items-center justify-between gap-5">
-        <span className="text-[13px] font-normal text-[#afbdd0]">
-          {label}
-        </span>
-
-        <span className="font-[var(--font-main)] text-[11px] text-[#7f91aa]">
-          {value}
-        </span>
-      </div>
-
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.055]">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-[#637bff] to-[#67def9]"
-          style={{
-            width: `${value}%`,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
 function CopyButton({
   value,
   active,
@@ -380,7 +308,27 @@ export function ReleaseWorkspace() {
   ] =
     useState<
       HistoryItem[]
-    >([]);
+    >(() => {
+      if (
+        typeof window ===
+        "undefined"
+      ) {
+        return [];
+      }
+
+      try {
+        const raw =
+          window.localStorage.getItem(
+            historyKey,
+          );
+
+        return raw
+          ? JSON.parse(raw)
+          : [];
+      } catch {
+        return [];
+      }
+    });
 
   const [
     currentHistoryId,
@@ -389,25 +337,6 @@ export function ReleaseWorkspace() {
     useState<
       string | null
     >(null);
-
-  useEffect(() => {
-    try {
-      const raw =
-        localStorage.getItem(
-          historyKey,
-        );
-
-      if (raw) {
-        setHistory(
-          JSON.parse(
-            raw,
-          ),
-        );
-      }
-    } catch {
-      setHistory([]);
-    }
-  }, []);
 
   function saveHistory(
     items:
@@ -660,55 +589,6 @@ export function ReleaseWorkspace() {
 
   const analysis =
     result?.analysis;
-
-  const tabs:
-    Array<{
-      id: Tab;
-      label: string;
-      icon:
-        typeof BrainCircuit;
-    }> = [
-      {
-        id:
-          "intelligence",
-        label:
-          "Intelligence",
-        icon:
-          BrainCircuit,
-      },
-      {
-        id:
-          "reviews",
-        label:
-          "Reviews",
-        icon:
-          MessageSquareText,
-      },
-      {
-        id:
-          "campaign",
-        label:
-          "Promote",
-        icon:
-          Target,
-      },
-      {
-        id:
-          "publish",
-        label:
-          "Publish",
-        icon:
-          RadioTower,
-      },
-      {
-        id:
-          "history",
-        label:
-          "History",
-        icon:
-          History,
-      },
-    ];
 
   return (
     <div className="space-y-8">
