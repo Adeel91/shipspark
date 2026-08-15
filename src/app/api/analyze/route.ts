@@ -1,76 +1,383 @@
-import { GoogleGenAI } from "@google/genai";
+import {
+  GoogleGenAI,
+} from "@google/genai";
+import gplay from "google-play-scraper";
 
 export const runtime = "nodejs";
 
-type AppStoreResult = {
-  trackName?: string;
-  description?: string;
-  primaryGenreName?: string;
-  averageUserRating?: number;
-  userRatingCount?: number;
+const ai = new GoogleGenAI({
+  apiKey:
+    process.env.GEMINI_API_KEY,
+});
+
+type StoreReview = {
+  platform:
+    | "ios"
+    | "android";
+  rating: number;
+  title: string;
+  text: string;
   version?: string;
-  releaseNotes?: string;
-  artworkUrl512?: string;
-  trackViewUrl?: string;
+  date?: string;
+  helpful?: number;
 };
 
-type GitHubRepository = {
-  full_name?: string;
+type StoreSnapshot = {
+  platform:
+    | "ios"
+    | "android";
+  name: string;
+  url: string;
+  category?: string;
+  version?: string;
+  rating?: number;
+  ratingCount?: number;
   description?: string;
-  html_url?: string;
+  releaseNotes?: string;
+  artwork?: string;
+  reviews: StoreReview[];
+};
+
+type GithubSnapshot = {
+  repository: string;
+  description?: string;
   language?: string;
-  stargazers_count?: number;
-  topics?: string[];
+  stars?: number;
+  defaultBranch?: string;
+  latestRelease?: {
+    name?: string;
+    tag?: string;
+    body?: string;
+    publishedAt?: string;
+    url?: string;
+  };
+  recentCommits: Array<{
+    sha: string;
+    message: string;
+    date?: string;
+  }>;
+  readme?: string;
 };
 
-type GitHubRelease = {
-  tag_name?: string;
-  name?: string;
-  body?: string;
-  published_at?: string;
-  html_url?: string;
-};
-
-const campaignSchema = {
+const responseSchema = {
   type: "object",
+  required: [
+    "decision",
+    "confidence",
+    "opportunityScore",
+    "oneLineVerdict",
+    "releaseState",
+    "scores",
+    "strategicInsight",
+    "reviewIntelligence",
+    "releaseIntelligence",
+    "campaign",
+    "evidence",
+    "risks",
+  ],
   properties: {
     decision: {
       type: "string",
-      enum: ["PROMOTE", "SKIP"],
+      enum: [
+        "PROMOTE",
+        "WAIT",
+        "SKIP",
+      ],
     },
+
     confidence: {
       type: "integer",
+      minimum: 0,
+      maximum: 100,
     },
-    launchAngle: {
+
+    opportunityScore: {
+      type: "integer",
+      minimum: 0,
+      maximum: 100,
+    },
+
+    oneLineVerdict: {
       type: "string",
     },
-    whyNow: {
-      type: "string",
+
+    releaseState: {
+      type: "object",
+      required: [
+        "status",
+        "explanation",
+      ],
+      properties: {
+        status: {
+          type: "string",
+          enum: [
+            "aligned",
+            "ahead_of_store",
+            "store_ahead",
+            "unclear",
+          ],
+        },
+        explanation: {
+          type: "string",
+        },
+      },
     },
-    audience: {
-      type: "string",
+
+    scores: {
+      type: "object",
+      required: [
+        "changeNovelty",
+        "userValue",
+        "reviewDemandMatch",
+        "positioningGap",
+        "timing",
+        "evidenceQuality",
+      ],
+      properties: {
+        changeNovelty: {
+          type: "integer",
+          minimum: 0,
+          maximum: 100,
+        },
+        userValue: {
+          type: "integer",
+          minimum: 0,
+          maximum: 100,
+        },
+        reviewDemandMatch: {
+          type: "integer",
+          minimum: 0,
+          maximum: 100,
+        },
+        positioningGap: {
+          type: "integer",
+          minimum: 0,
+          maximum: 100,
+        },
+        timing: {
+          type: "integer",
+          minimum: 0,
+          maximum: 100,
+        },
+        evidenceQuality: {
+          type: "integer",
+          minimum: 0,
+          maximum: 100,
+        },
+      },
     },
-    headline: {
-      type: "string",
+
+    strategicInsight: {
+      type: "object",
+      required: [
+        "whatChanged",
+        "whoCares",
+        "whyUsersCare",
+        "whyNow",
+        "strongestReason",
+        "counterArgument",
+        "recommendation",
+      ],
+      properties: {
+        whatChanged: {
+          type: "string",
+        },
+        whoCares: {
+          type: "string",
+        },
+        whyUsersCare: {
+          type: "string",
+        },
+        whyNow: {
+          type: "string",
+        },
+        strongestReason: {
+          type: "string",
+        },
+        counterArgument: {
+          type: "string",
+        },
+        recommendation: {
+          type: "string",
+        },
+      },
     },
-    socialPost: {
-      type: "string",
+
+    reviewIntelligence: {
+      type: "object",
+      required: [
+        "reviewsAnalyzed",
+        "summary",
+        "topThemes",
+        "matchedNeeds",
+        "unresolvedProblems",
+        "crossPlatformDifferences",
+      ],
+      properties: {
+        reviewsAnalyzed: {
+          type: "integer",
+          minimum: 0,
+        },
+
+        summary: {
+          type: "string",
+        },
+
+        topThemes: {
+          type: "array",
+          items: {
+            type: "object",
+            required: [
+              "theme",
+              "sentiment",
+              "strength",
+              "releaseRelevance",
+            ],
+            properties: {
+              theme: {
+                type: "string",
+              },
+              sentiment: {
+                type: "string",
+                enum: [
+                  "positive",
+                  "negative",
+                  "mixed",
+                ],
+              },
+              strength: {
+                type: "string",
+                enum: [
+                  "weak",
+                  "moderate",
+                  "strong",
+                ],
+              },
+              releaseRelevance: {
+                type: "string",
+              },
+            },
+          },
+        },
+
+        matchedNeeds: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+        },
+
+        unresolvedProblems: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+        },
+
+        crossPlatformDifferences: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+        },
+      },
     },
-    discordPost: {
-      type: "string",
+
+    releaseIntelligence: {
+      type: "object",
+      required: [
+        "userFacingChanges",
+        "maintenanceChanges",
+        "matchedReviewNeeds",
+        "positioningGaps",
+        "versionRisk",
+      ],
+      properties: {
+        userFacingChanges: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+        },
+
+        maintenanceChanges: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+        },
+
+        matchedReviewNeeds: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+        },
+
+        positioningGaps: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+        },
+
+        versionRisk: {
+          type: "string",
+        },
+      },
     },
-    campaignHook: {
-      type: "string",
+
+    campaign: {
+      type: "object",
+      required: [
+        "enabled",
+        "angle",
+        "headline",
+        "hook",
+        "audience",
+        "cta",
+        "socialPost",
+        "discordPost",
+        "nextStep",
+      ],
+      properties: {
+        enabled: {
+          type: "boolean",
+        },
+        angle: {
+          type: "string",
+        },
+        headline: {
+          type: "string",
+        },
+        hook: {
+          type: "string",
+        },
+        audience: {
+          type: "string",
+        },
+        cta: {
+          type: "string",
+        },
+        socialPost: {
+          type: "string",
+        },
+        discordPost: {
+          type: "string",
+        },
+        nextStep: {
+          type: "string",
+        },
+      },
     },
-    cta: {
-      type: "string",
-    },
+
     evidence: {
       type: "array",
       items: {
         type: "string",
       },
     },
+
     risks: {
       type: "array",
       items: {
@@ -78,46 +385,68 @@ const campaignSchema = {
       },
     },
   },
-  required: [
-    "decision",
-    "confidence",
-    "launchAngle",
-    "whyNow",
-    "audience",
-    "headline",
-    "socialPost",
-    "discordPost",
-    "campaignHook",
-    "cta",
-    "evidence",
-    "risks",
-  ],
-} as const;
+};
 
-function parseAppStoreUrl(value: string) {
-  let url: URL;
+function clean(
+  value:
+    | string
+    | undefined
+    | null,
+  max = 6000,
+) {
+  return (
+    value
+      ?.replace(
+        /\s+/g,
+        " ",
+      )
+      .trim()
+      .slice(
+        0,
+        max,
+      ) ?? ""
+  );
+}
 
-  try {
-    url = new URL(value);
-  } catch {
-    throw new Error("Enter a valid App Store URL.");
+function parseAppStoreUrl(
+  raw: string,
+) {
+  const url =
+    new URL(raw);
+
+  if (
+    url.hostname !==
+      "apps.apple.com" &&
+    url.hostname !==
+      "itunes.apple.com"
+  ) {
+    throw new Error(
+      "Enter a valid App Store URL.",
+    );
   }
 
-  if (!url.hostname.endsWith("apps.apple.com")) {
-    throw new Error("Enter an Apple App Store URL.");
-  }
-
-  const match = url.pathname.match(/id(\d+)/);
+  const match =
+    url.pathname.match(
+      /id(\d+)/,
+    );
 
   if (!match) {
-    throw new Error("Could not find the App Store app ID.");
+    throw new Error(
+      "Could not find an App Store app ID.",
+    );
   }
 
-  const firstPart = url.pathname.split("/").filter(Boolean)[0];
+  const parts =
+    url.pathname
+      .split("/")
+      .filter(Boolean);
 
   const country =
-    firstPart && /^[a-z]{2}$/i.test(firstPart)
-      ? firstPart.toLowerCase()
+    parts[0] &&
+    /^[a-z]{2}$/i.test(
+      parts[0],
+    )
+      ? parts[0].toLowerCase()
       : "us";
 
   return {
@@ -126,172 +455,839 @@ function parseAppStoreUrl(value: string) {
   };
 }
 
-function parseGitHubUrl(value: string) {
-  let url: URL;
+function parsePlayStoreUrl(
+  raw: string,
+) {
+  const url =
+    new URL(raw);
 
-  try {
-    url = new URL(value);
-  } catch {
-    throw new Error("Enter a valid GitHub URL.");
+  if (
+    url.hostname !==
+    "play.google.com"
+  ) {
+    throw new Error(
+      "Enter a valid Google Play URL.",
+    );
   }
 
-  if (url.hostname !== "github.com") {
-    throw new Error("Enter a github.com repository URL.");
+  const appId =
+    url.searchParams.get(
+      "id",
+    );
+
+  if (!appId) {
+    throw new Error(
+      "Could not find the Google Play package ID.",
+    );
   }
 
-  const parts = url.pathname.split("/").filter(Boolean);
+  const country =
+    (
+      url.searchParams.get(
+        "gl",
+      ) ?? "us"
+    ).toLowerCase();
 
-  if (parts.length < 2) {
-    throw new Error("GitHub URL must contain an owner and repository.");
+  const lang =
+    (
+      url.searchParams.get(
+        "hl",
+      ) ?? "en"
+    )
+      .split("_")[0]
+      .toLowerCase();
+
+  return {
+    appId,
+    country,
+    lang,
+  };
+}
+
+function parseGithubUrl(
+  raw: string,
+) {
+  const url =
+    new URL(raw);
+
+  if (
+    url.hostname !==
+    "github.com"
+  ) {
+    throw new Error(
+      "Enter a valid public GitHub repository URL.",
+    );
+  }
+
+  const parts =
+    url.pathname
+      .split("/")
+      .filter(Boolean);
+
+  if (
+    parts.length < 2
+  ) {
+    throw new Error(
+      "GitHub repository URL must contain an owner and repository.",
+    );
   }
 
   return {
     owner: parts[0],
-    repo: parts[1].replace(/\.git$/, ""),
+    repo:
+      parts[1].replace(
+        /\.git$/,
+        "",
+      ),
   };
 }
 
-async function getAppStoreData(appUrl: string) {
-  const { appId, country } = parseAppStoreUrl(appUrl);
-
-  const response = await fetch(
-    `https://itunes.apple.com/lookup?id=${appId}&country=${country}`,
-    {
-      cache: "no-store",
-    },
-  );
+async function fetchJson(
+  url: string,
+  options?: RequestInit,
+) {
+  const response =
+    await fetch(
+      url,
+      {
+        ...options,
+        cache:
+          "no-store",
+      },
+    );
 
   if (!response.ok) {
-    throw new Error("Could not retrieve App Store data.");
-  }
-
-  const data = (await response.json()) as {
-    resultCount: number;
-    results: AppStoreResult[];
-  };
-
-  if (!data.resultCount || !data.results[0]) {
-    throw new Error("App Store app was not found.");
-  }
-
-  return data.results[0];
-}
-
-function githubHeaders() {
-  return {
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2026-03-10",
-    "User-Agent": "ShipSpark",
-  };
-}
-
-async function getGitHubData(githubUrl: string) {
-  const { owner, repo } = parseGitHubUrl(githubUrl);
-
-  const repositoryResponse = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}`,
-    {
-      headers: githubHeaders(),
-      cache: "no-store",
-    },
-  );
-
-  if (!repositoryResponse.ok) {
-    throw new Error("Could not retrieve that GitHub repository.");
-  }
-
-  const repository =
-    (await repositoryResponse.json()) as GitHubRepository;
-
-  const releaseResponse = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/releases/latest`,
-    {
-      headers: githubHeaders(),
-      cache: "no-store",
-    },
-  );
-
-  if (releaseResponse.ok) {
-    const release =
-      (await releaseResponse.json()) as GitHubRelease;
-
-    return {
-      repository,
-      release,
-      source: "release",
-    };
-  }
-
-  const commitsResponse = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/commits?per_page=5`,
-    {
-      headers: githubHeaders(),
-      cache: "no-store",
-    },
-  );
-
-  if (!commitsResponse.ok) {
     throw new Error(
-      "No published release or recent commits could be loaded.",
+      `Request failed with ${response.status}.`,
     );
   }
 
-  const commits = (await commitsResponse.json()) as Array<{
-    sha?: string;
-    html_url?: string;
-    commit?: {
-      message?: string;
-      author?: {
-        date?: string;
-      };
-    };
-  }>;
+  return response.json();
+}
 
-  const latest = commits[0];
+async function fetchAppleReviews(
+  appId: string,
+  country: string,
+) {
+  const reviews:
+    StoreReview[] = [];
+
+  for (
+    const page of [1, 2]
+  ) {
+    try {
+      const url =
+        `https://itunes.apple.com/${country}/rss/customerreviews/page=${page}/id=${appId}/sortBy=mostRecent/json`;
+
+      const data =
+        await fetchJson(
+          url,
+        );
+
+      const entries =
+        Array.isArray(
+          data?.feed
+            ?.entry,
+        )
+          ? data.feed
+              .entry
+          : [];
+
+      for (
+        const entry of
+          entries
+      ) {
+        const rating =
+          Number(
+            entry?.[
+              "im:rating"
+            ]?.label,
+          );
+
+        if (
+          !Number.isFinite(
+            rating,
+          )
+        ) {
+          continue;
+        }
+
+        reviews.push({
+          platform:
+            "ios",
+          rating,
+          title:
+            clean(
+              entry?.title
+                ?.label,
+              180,
+            ),
+          text:
+            clean(
+              entry
+                ?.content
+                ?.label,
+              900,
+            ),
+          version:
+            clean(
+              entry?.[
+                "im:version"
+              ]?.label,
+              40,
+            ),
+          date:
+            clean(
+              entry
+                ?.updated
+                ?.label,
+              80,
+            ),
+        });
+      }
+    } catch {
+      break;
+    }
+  }
+
+  return reviews;
+}
+
+async function fetchAppleStore(
+  rawUrl: string,
+): Promise<StoreSnapshot> {
+  const {
+    appId,
+    country,
+  } =
+    parseAppStoreUrl(
+      rawUrl,
+    );
+
+  const lookup =
+    await fetchJson(
+      `https://itunes.apple.com/lookup?id=${appId}&country=${country}`,
+    );
+
+  const app =
+    lookup?.results?.[0];
+
+  if (!app) {
+    throw new Error(
+      "App Store app could not be found.",
+    );
+  }
+
+  const reviews =
+    await fetchAppleReviews(
+      appId,
+      country,
+    );
 
   return {
-    repository,
-    source: "commits",
-    release: {
-      tag_name: latest?.sha?.slice(0, 7) ?? "latest",
-      name:
-        latest?.commit?.message?.split("\n")[0] ??
-        "Latest development update",
-      body: commits
-        .map((commit) => commit.commit?.message)
-        .filter(Boolean)
-        .join("\n\n"),
-      published_at: latest?.commit?.author?.date,
-      html_url: latest?.html_url,
-    } satisfies GitHubRelease,
+    platform:
+      "ios",
+    name:
+      app.trackName,
+    url:
+      app.trackViewUrl ??
+      rawUrl,
+    category:
+      app.primaryGenreName,
+    version:
+      app.version,
+    rating:
+      app.averageUserRating,
+    ratingCount:
+      app.userRatingCount,
+    description:
+      clean(
+        app.description,
+      ),
+    releaseNotes:
+      clean(
+        app.releaseNotes,
+      ),
+    artwork:
+      app.artworkUrl512,
+    reviews,
   };
 }
 
-export async function POST(request: Request) {
-  try {
-    if (!process.env.GEMINI_API_KEY) {
-      return Response.json(
-        {
-          error: "Gemini API key is not configured.",
+async function fetchPlayStore(
+  rawUrl: string,
+): Promise<StoreSnapshot> {
+  const {
+    appId,
+    country,
+    lang,
+  } =
+    parsePlayStoreUrl(
+      rawUrl,
+    );
+
+  const [
+    app,
+    reviewResult,
+  ] =
+    await Promise.all([
+      gplay.app({
+        appId,
+        country,
+        lang,
+      }),
+
+      gplay.reviews({
+        appId,
+        country,
+        lang,
+        num: 70,
+      }),
+    ]);
+
+  const reviews:
+    StoreReview[] =
+    reviewResult.data.map(
+      (review) => ({
+        platform:
+          "android",
+        rating:
+          review.score,
+        title:
+          clean(
+            review.title,
+            180,
+          ),
+        text:
+          clean(
+            review.text,
+            900,
+          ),
+        version:
+          clean(
+            review.version,
+            40,
+          ),
+        date:
+          review.date
+            ? new Date(
+                review.date,
+              ).toISOString()
+            : undefined,
+        helpful:
+          review.thumbsUp,
+      }),
+    );
+
+  return {
+    platform:
+      "android",
+    name:
+      app.title,
+    url:
+      app.url ??
+      rawUrl,
+    category:
+      app.genre,
+    version:
+      app.version,
+    rating:
+      app.score,
+    ratingCount:
+      app.ratings,
+    description:
+      clean(
+        app.description,
+      ),
+    releaseNotes:
+      clean(
+        app.recentChanges,
+      ),
+    artwork:
+      app.icon,
+    reviews,
+  };
+}
+
+async function githubRequest(
+  url: string,
+) {
+  const response =
+    await fetch(
+      url,
+      {
+        headers: {
+          Accept:
+            "application/vnd.github+json",
+          "User-Agent":
+            "ShipSpark-HackOnVibe",
         },
-        {
-          status: 500,
-        },
-      );
+        cache:
+          "no-store",
+      },
+    );
+
+  if (
+    response.status ===
+    404
+  ) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `GitHub returned ${response.status}.`,
+    );
+  }
+
+  return response.json();
+}
+
+async function fetchGithub(
+  rawUrl: string,
+): Promise<GithubSnapshot> {
+  const {
+    owner,
+    repo,
+  } =
+    parseGithubUrl(
+      rawUrl,
+    );
+
+  const base =
+    `https://api.github.com/repos/${owner}/${repo}`;
+
+  const [
+    repository,
+    latestRelease,
+    commits,
+    readme,
+  ] =
+    await Promise.all([
+      githubRequest(
+        base,
+      ),
+      githubRequest(
+        `${base}/releases/latest`,
+      ),
+      githubRequest(
+        `${base}/commits?per_page=18`,
+      ),
+      githubRequest(
+        `${base}/readme`,
+      ),
+    ]);
+
+  if (!repository) {
+    throw new Error(
+      "GitHub repository could not be found.",
+    );
+  }
+
+  let readmeText =
+    "";
+
+  if (
+    readme?.content
+  ) {
+    try {
+      readmeText =
+        Buffer.from(
+          readme.content,
+          "base64",
+        )
+          .toString(
+            "utf8",
+          )
+          .slice(
+            0,
+            8000,
+          );
+    } catch {
+      readmeText =
+        "";
+    }
+  }
+
+  return {
+    repository:
+      repository.full_name,
+    description:
+      repository.description,
+    language:
+      repository.language,
+    stars:
+      repository.stargazers_count,
+    defaultBranch:
+      repository.default_branch,
+
+    latestRelease:
+      latestRelease
+        ? {
+            name:
+              latestRelease.name,
+            tag:
+              latestRelease.tag_name,
+            body:
+              clean(
+                latestRelease.body,
+                7000,
+              ),
+            publishedAt:
+              latestRelease.published_at,
+            url:
+              latestRelease.html_url,
+          }
+        : undefined,
+
+    recentCommits:
+      Array.isArray(
+        commits,
+      )
+        ? commits.map(
+            (
+              commit,
+            ) => ({
+              sha:
+                commit.sha?.slice(
+                  0,
+                  8,
+                ) ?? "",
+              message:
+                clean(
+                  commit
+                    ?.commit
+                    ?.message,
+                  500,
+                ),
+              date:
+                commit
+                  ?.commit
+                  ?.author
+                  ?.date,
+            }),
+          )
+        : [],
+
+    readme:
+      clean(
+        readmeText,
+        8000,
+      ),
+  };
+}
+
+function selectReviews(
+  reviews:
+    StoreReview[],
+  max = 34,
+) {
+  const seen =
+    new Set<string>();
+
+  const unique =
+    reviews.filter(
+      (review) => {
+        const key =
+          `${review.rating}:${review.text.toLowerCase()}`;
+
+        if (
+          !review.text ||
+          seen.has(key)
+        ) {
+          return false;
+        }
+
+        seen.add(key);
+
+        return true;
+      },
+    );
+
+  const negative =
+    unique.filter(
+      (review) =>
+        review.rating <=
+        2,
+    );
+
+  const positive =
+    unique.filter(
+      (review) =>
+        review.rating >=
+        4,
+    );
+
+  const mixed =
+    unique.filter(
+      (review) =>
+        review.rating ===
+        3,
+    );
+
+  const selected = [
+    ...negative.slice(
+      0,
+      12,
+    ),
+    ...positive.slice(
+      0,
+      12,
+    ),
+    ...mixed.slice(
+      0,
+      6,
+    ),
+  ];
+
+  for (
+    const review of
+      unique
+  ) {
+    if (
+      selected.length >=
+      max
+    ) {
+      break;
     }
 
-    const body = (await request.json()) as {
-      appUrl?: string;
-      githubUrl?: string;
-    };
+    if (
+      !selected.includes(
+        review,
+      )
+    ) {
+      selected.push(
+        review,
+      );
+    }
+  }
 
-    const appUrl = body.appUrl?.trim();
-    const githubUrl = body.githubUrl?.trim();
+  return selected.slice(
+    0,
+    max,
+  );
+}
 
-    if (!appUrl || !githubUrl) {
+function reviewPayload(
+  store:
+    StoreSnapshot,
+) {
+  return {
+    platform:
+      store.platform,
+    reviewsAvailable:
+      store.reviews.length,
+    sample:
+      selectReviews(
+        store.reviews,
+      ).map(
+        (review) => ({
+          rating:
+            review.rating,
+          title:
+            review.title,
+          text:
+            clean(
+              review.text,
+              550,
+            ),
+          version:
+            review.version,
+          date:
+            review.date,
+          helpful:
+            review.helpful,
+        }),
+      ),
+  };
+}
+
+function storePayload(
+  store:
+    StoreSnapshot,
+) {
+  return {
+    platform:
+      store.platform,
+    name:
+      store.name,
+    category:
+      store.category,
+    version:
+      store.version,
+    rating:
+      store.rating,
+    ratingCount:
+      store.ratingCount,
+    description:
+      clean(
+        store.description,
+        4500,
+      ),
+    releaseNotes:
+      clean(
+        store.releaseNotes,
+        3500,
+      ),
+  };
+}
+
+const GEMINI_MODELS = Array.from(
+  new Set(
+    [
+      process.env.GEMINI_MODEL?.trim(),
+      "gemini-3.7-flash",
+      "gemini-3.6-flash",
+      "gemini-3.5-flash",
+      "gemini-3.5-flash-lite",
+    ].filter(Boolean) as string[],
+  ),
+);
+
+function geminiErrorMessage(
+  error: unknown,
+) {
+  if (
+    error instanceof Error
+  ) {
+    return error.message;
+  }
+
+  try {
+    return JSON.stringify(
+      error,
+    );
+  } catch {
+    return String(
+      error,
+    );
+  }
+}
+
+function canTryAnotherModel(
+  error: unknown,
+) {
+  const message =
+    geminiErrorMessage(
+      error,
+    );
+
+  return /429|RESOURCE_EXHAUSTED|quota|rate.?limit|503|UNAVAILABLE|404|NOT_FOUND/i.test(
+    message,
+  );
+}
+
+async function runGeminiWithFallback(
+  prompt: string,
+) {
+  let lastError:
+    unknown = null;
+
+  for (
+    const model of
+      GEMINI_MODELS
+  ) {
+    try {
+      console.log(
+        `[ShipSpark] Trying Gemini model: ${model}`,
+      );
+
+      const interaction =
+        await ai.interactions.create({
+          model,
+          store: false,
+          input: prompt,
+          response_format: {
+            type: "text",
+            mime_type:
+              "application/json",
+            schema:
+              responseSchema,
+          },
+        });
+
+      if (
+        !interaction.output_text
+      ) {
+        console.warn(
+          `[ShipSpark] ${model} returned no output. Trying fallback.`,
+        );
+
+        continue;
+      }
+
+      console.log(
+        `[ShipSpark] Analysis completed with ${model}`,
+      );
+
+      return {
+        outputText:
+          interaction.output_text,
+        modelUsed:
+          model,
+      };
+    } catch (error) {
+      lastError =
+        error;
+
+      console.warn(
+        `[ShipSpark] Gemini model ${model} failed:`,
+        geminiErrorMessage(
+          error,
+        ),
+      );
+
+      if (
+        !canTryAnotherModel(
+          error,
+        )
+      ) {
+        throw error;
+      }
+
+      console.warn(
+        `[ShipSpark] Trying next Gemini fallback model.`,
+      );
+    }
+  }
+
+  throw (
+    lastError ??
+    new Error(
+      "All Gemini models failed.",
+    )
+  );
+}
+
+export async function POST(
+  request: Request,
+) {
+  try {
+    const body =
+      (await request.json()) as {
+        appStoreUrl?: string;
+        playStoreUrl?: string;
+        githubUrl?: string;
+      };
+
+    const appStoreUrl =
+      body.appStoreUrl?.trim();
+
+    const playStoreUrl =
+      body.playStoreUrl?.trim();
+
+    const githubUrl =
+      body.githubUrl?.trim();
+
+    if (
+      !appStoreUrl &&
+      !playStoreUrl &&
+      !githubUrl
+    ) {
       return Response.json(
         {
-          error: "App Store URL and GitHub URL are required.",
+          error:
+            "Add at least one source: App Store, Google Play, or GitHub.",
         },
         {
           status: 400,
@@ -299,142 +1295,314 @@ export async function POST(request: Request) {
       );
     }
 
-    const [app, github] = await Promise.all([
-      getAppStoreData(appUrl),
-      getGitHubData(githubUrl),
-    ]);
+    const [
+      ios,
+      android,
+      github,
+    ] =
+      await Promise.all([
+        appStoreUrl
+          ? fetchAppleStore(
+              appStoreUrl,
+            )
+          : Promise.resolve(
+              undefined,
+            ),
 
-    const ai = new GoogleGenAI({});
+        playStoreUrl
+          ? fetchPlayStore(
+              playStoreUrl,
+            )
+          : Promise.resolve(
+              undefined,
+            ),
+
+        githubUrl
+          ? fetchGithub(
+              githubUrl,
+            )
+          : Promise.resolve(
+              undefined,
+            ),
+      ]);
+
+    const stores =
+      [
+        ios,
+        android,
+      ].filter(
+        Boolean,
+      ) as StoreSnapshot[];
+
+    const reviewCount =
+      stores.reduce(
+        (
+          sum,
+          store,
+        ) =>
+          sum +
+          store.reviews
+            .length,
+        0,
+      );
+
+    const evidenceBundle =
+      {
+        stores:
+          stores.map(
+            storePayload,
+          ),
+
+        reviews:
+          stores.map(
+            reviewPayload,
+          ),
+
+        github:
+          github
+            ? {
+                repository:
+                  github.repository,
+                description:
+                  github.description,
+                language:
+                  github.language,
+                stars:
+                  github.stars,
+                latestRelease:
+                  github.latestRelease,
+                recentCommits:
+                  github.recentCommits,
+                readme:
+                  github.readme,
+              }
+            : null,
+      };
 
     const prompt = `
-You are ShipSpark, an autonomous growth agent for newly launched mobile apps.
+You are ShipSpark, a release intelligence engine for mobile product teams.
 
-Your task is to decide whether the latest product update deserves active promotion.
+Your job is NOT to generate generic marketing copy.
 
-Do not behave like a generic copywriting assistant.
+Your first job is to decide whether this release deserves promotion at all.
 
-First determine what actually changed.
+You have four evidence classes:
 
-Then determine whether that change gives users a meaningful new benefit.
+1. Current App Store and or Google Play positioning.
+2. Current store version and recent store release notes.
+3. Recent real customer reviews.
+4. Latest GitHub release, recent commits, repository description, and README context.
 
-If the update is trivial, maintenance only, technical only, unclear, or provides no meaningful user benefit, return SKIP.
+Analyze all evidence together.
 
-If there is a compelling user benefit, return PROMOTE.
+DECISION POLICY
 
-When promoting, identify the single strongest marketing angle.
+PROMOTE only when:
+The release contains a meaningful user facing improvement.
+There is a specific user benefit.
+There is evidence that the benefit matters to real users or creates a strong positioning opportunity.
+The release appears available or sufficiently aligned with the store version.
+There is enough evidence for a specific campaign angle.
 
-Never invent features, reviews, metrics, adoption, customer opinions, or performance claims.
+WAIT when:
+The release looks valuable but appears ahead of the store version.
+The feature is not clearly live yet.
+Evidence is incomplete or contradictory.
+The user benefit is strong but timing is wrong.
 
-APP
+SKIP when:
+The change is mostly maintenance, refactoring, dependency work, bug fixes with narrow impact, or developer only work.
+There is no compelling user benefit.
+Review demand does not meaningfully match the change.
+A campaign would create more noise than value.
 
-Name:
-${app.trackName ?? "Unknown"}
+IMPORTANT REVIEW RULES
 
-Category:
-${app.primaryGenreName ?? "Unknown"}
+Do not claim that users repeatedly ask for something unless the supplied reviews actually support it.
 
-Current version:
-${app.version ?? "Unknown"}
+A review theme should be marked strong only when there is clear repeated evidence.
 
-Rating:
-${app.averageUserRating ?? "Unknown"}
+Separate complaints that this release solves from complaints that remain unresolved.
 
-Rating count:
-${app.userRatingCount ?? "Unknown"}
+If both iOS and Android are supplied, identify meaningful cross platform differences.
 
-Description:
-${app.description ?? "Unavailable"}
+Do not invent review counts, review quotes, features, release dates, or version relationships.
 
-Current App Store release notes:
-${app.releaseNotes ?? "Unavailable"}
+Do not confuse general app praise with demand for the new release.
 
-GITHUB
+IMPORTANT RELEASE RULES
 
-Repository:
-${github.repository.full_name ?? "Unknown"}
+Distinguish user facing changes from maintenance work.
 
-Repository description:
-${github.repository.description ?? "Unavailable"}
+Compare GitHub release information against store versions and store release notes.
 
-Primary language:
-${github.repository.language ?? "Unknown"}
+If GitHub appears ahead of the live store, explicitly call that out and strongly consider WAIT.
 
-Topics:
-${github.repository.topics?.join(", ") || "None"}
+Identify whether the current store positioning already communicates the new benefit.
 
-Development source:
-${github.source}
+If the new benefit is already heavily positioned, positioningGap should be lower.
 
-Latest update:
-${github.release.name ?? "Unknown"}
+SCORING
 
-Version or commit:
-${github.release.tag_name ?? "Unknown"}
+Score each dimension from 0 to 100:
 
-Published:
-${github.release.published_at ?? "Unknown"}
+changeNovelty
+How meaningful and differentiated the release is.
 
-Release notes or recent development:
-${github.release.body ?? "Unavailable"}
+userValue
+How clearly the release improves the user's experience.
 
-Return an honest campaign decision based only on this evidence.
+reviewDemandMatch
+How strongly real customer feedback connects to this release.
 
-For confidence, use an integer between 0 and 100.
+positioningGap
+How much valuable benefit exists that current store positioning fails to communicate.
 
-The social post and Discord post must be immediately usable.
+timing
+How appropriate it is to promote this release now.
 
-The evidence array must contain concrete facts that influenced the decision.
+evidenceQuality
+How strong and consistent the available evidence is.
 
-The risks array must identify weaknesses in the campaign or uncertainty in the available evidence.
-`.trim();
+opportunityScore is your overall promotion opportunity score.
 
-    const interaction = await ai.interactions.create({
-      model: "gemini-3.6-flash",
-      store: false,
-      input: prompt,
-      response_format: {
-        type: "text",
-        mime_type: "application/json",
-        schema: campaignSchema,
-      },
-    });
+INSIGHT QUALITY
 
-    if (!interaction.output_text) {
-      throw new Error("Gemini returned an empty response.");
-    }
+Avoid statements like:
+"Improves user experience"
+"Enhances performance"
+"Users will love this"
+"Great update"
 
-    const campaign = JSON.parse(interaction.output_text);
+Instead explain:
+What specifically changed.
+Which user problem it changes.
+What review evidence supports or contradicts it.
+Why this release matters now.
+What would make promotion a mistake.
+
+For reviewIntelligence, synthesize review patterns rather than repeating raw reviews.
+
+For strategicInsight.counterArgument, make the strongest case AGAINST promotion.
+
+For strategicInsight.recommendation, give a concrete product or growth action.
+
+CAMPAIGN RULE
+
+Only set campaign.enabled=true when decision is PROMOTE.
+
+If decision is WAIT or SKIP:
+campaign.enabled must be false.
+Do not generate fake campaign copy.
+Leave angle, headline, hook, audience, cta, socialPost, and discordPost empty.
+Use nextStep to explain what should happen before reconsidering promotion.
+
+If PROMOTE:
+The campaign angle must directly connect the release to evidence.
+Avoid generic startup language.
+Social and Discord copy should sound like a real product team announcing a useful change.
+
+Total raw reviews available across stores: ${reviewCount}
+
+EVIDENCE BUNDLE
+
+${JSON.stringify(
+  evidenceBundle,
+  null,
+  2,
+)}
+`;
+
+    const {
+      outputText,
+      modelUsed,
+    } =
+      await runGeminiWithFallback(
+        prompt,
+      );
+
+    const analysis =
+      JSON.parse(
+        outputText,
+      );
 
     return Response.json({
-      app: {
-        name: app.trackName,
-        category: app.primaryGenreName,
-        rating: app.averageUserRating,
-        ratingCount: app.userRatingCount,
-        version: app.version,
-        releaseNotes: app.releaseNotes,
-        artwork: app.artworkUrl512,
-        url: app.trackViewUrl ?? appUrl,
+      stores: {
+        ios:
+          ios
+            ? {
+                name:
+                  ios.name,
+                category:
+                  ios.category,
+                version:
+                  ios.version,
+                rating:
+                  ios.rating,
+                ratingCount:
+                  ios.ratingCount,
+                artwork:
+                  ios.artwork,
+                url:
+                  ios.url,
+                reviewsAnalyzed:
+                  ios.reviews
+                    .length,
+              }
+            : undefined,
+
+        android:
+          android
+            ? {
+                name:
+                  android.name,
+                category:
+                  android.category,
+                version:
+                  android.version,
+                rating:
+                  android.rating,
+                ratingCount:
+                  android.ratingCount,
+                artwork:
+                  android.artwork,
+                url:
+                  android.url,
+                reviewsAnalyzed:
+                  android.reviews
+                    .length,
+              }
+            : undefined,
       },
-      github: {
-        repository: github.repository.full_name,
-        description: github.repository.description,
-        language: github.repository.language,
-        stars: github.repository.stargazers_count,
-        source: github.source,
-        release: {
-          name: github.release.name,
-          version: github.release.tag_name,
-          notes: github.release.body,
-          publishedAt: github.release.published_at,
-          url: github.release.html_url,
-        },
-      },
-      campaign,
-      generatedAt: new Date().toISOString(),
+
+      github:
+        github
+          ? {
+              repository:
+                github.repository,
+              description:
+                github.description,
+              language:
+                github.language,
+              stars:
+                github.stars,
+              release:
+                github.latestRelease,
+            }
+          : undefined,
+
+      analysis,
+
+      modelUsed,
+
+      generatedAt:
+        new Date().toISOString(),
     });
   } catch (error) {
-    console.error("ShipSpark analysis failed:", error);
+    console.error(
+      "ShipSpark analysis failed:",
+      error,
+    );
 
     return Response.json(
       {

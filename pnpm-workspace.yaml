@@ -1,5 +1,6 @@
 allowBuilds:
   '@google/genai': true
+  es5-ext: true
   protobufjs: true
   sharp: false
   unrs-resolver: false
