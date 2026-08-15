@@ -1,7 +1,1 @@
-# HackOnVibe — team project
-
-Your team's project repo. Push here → Cloudflare Pages CI/CD builds & deploys → it goes live on your team's address.
-
-**Test the pipeline first:** edit `index.html` (a "Hello World" is enough), commit to `main` (or open a PR), and watch it appear on your live URL. That confirms the whole chain works.
-
-Then build your AI-assisted micro-product. Static site works out of the box; add a build step if you need one.
+# Start here\n\nJudges can access your GitHub repository. Please build your project in the GitHub repository issued to your team.\n\nPaste the link that judges should open to review your project here:\nhttps://hackonvibe.com/me?tab=team#your-team → **Live project URL judges will open**\n
