@@ -78,7 +78,7 @@ ShipSpark follows a decision first workflow.
 | **5. Make the decision** | Return PROMOTE, WAIT, or SKIP |
 | **6. Explain why** | Show score reasoning, strongest signals, risks, and the recommended next action |
 | **7. Promote when justified** | Generate campaign content only when the decision is PROMOTE |
-| **8. Publish** | Send an approved campaign to Discord |
+| **8. Publish** | Share socially through the native share flow or publish directly to Discord, with optional links and images |
 
 **Evidence → Decision → Explanation → Promotion → Distribution**
 
@@ -227,19 +227,19 @@ When ShipSpark returns **PROMOTE**, the current analysis can include:
 
 ---
 
-### 📡 Real publishing
+### 📡 Real distribution
 
-ShipSpark includes a working Discord publishing flow.
+ShipSpark includes two working distribution paths.
 
 The user can:
 
-1. Review the generated Discord campaign message
-2. Add a Discord webhook
-3. Preview the message
-4. Publish directly from ShipSpark
-5. Receive the publishing result
+1. Review the generated social and Discord campaign assets
+2. Add an optional destination link and image URL for each channel
+3. Share the social asset through the device native share flow without social API credentials
+4. Add a Discord webhook and publish the Discord announcement directly from ShipSpark
+5. Receive the Discord publishing result
 
-This means the prototype can move from release intelligence to a real distribution action.
+This means the prototype can move from release intelligence to a real distribution action while keeping every publish action explicit.
 
 ---
 
@@ -425,7 +425,7 @@ A strong demo path is:
 5. Open the score explanations
 6. Review customer intelligence
 7. Open the generated campaign
-8. Publish it to Discord
+8. Share socially or publish it directly to Discord
 
 ---
 

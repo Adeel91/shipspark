@@ -1141,10 +1141,8 @@ const DEV_GEMINI_MODEL =
   "gemini-3.5-flash-lite";
 
 const PRODUCTION_GEMINI_MODELS = [
-  "gemini-3.7-flash",
-  "gemini-3.6-flash",
-  "gemini-3.5-flash",
   "gemini-3.5-flash-lite",
+  "gemini-3.5-flash",
 ];
 
 const GEMINI_MODELS =
@@ -1182,9 +1180,49 @@ function canTryAnotherModel(
       error,
     );
 
-  return /429|RESOURCE_EXHAUSTED|quota|rate.?limit|503|UNAVAILABLE|404|NOT_FOUND/i.test(
+  return /429|RESOURCE_EXHAUSTED|quota|rate.?limit|503|UNAVAILABLE|404|NOT_FOUND|timed out|timeout/i.test(
     message,
   );
+}
+
+const GEMINI_ATTEMPT_TIMEOUT_MS = 15000;
+
+async function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  label: string,
+): Promise<T> {
+  let timer:
+    | ReturnType<typeof setTimeout>
+    | undefined;
+
+  const timeout =
+    new Promise<never>(
+      (_, reject) => {
+        timer =
+          setTimeout(
+            () => {
+              reject(
+                new Error(
+                  `${label} timed out after ${timeoutMs}ms`,
+                ),
+              );
+            },
+            timeoutMs,
+          );
+      },
+    );
+
+  try {
+    return await Promise.race([
+      promise,
+      timeout,
+    ]);
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
 }
 
 async function runGeminiWithFallback(
@@ -1203,18 +1241,22 @@ async function runGeminiWithFallback(
       );
 
       const interaction =
-        await ai.interactions.create({
-          model,
-          store: false,
-          input: prompt,
-          response_format: {
-            type: "text",
-            mime_type:
-              "application/json",
-            schema:
-              responseSchema,
-          },
-        });
+        await withTimeout(
+          ai.interactions.create({
+            model,
+            store: false,
+            input: prompt,
+            response_format: {
+              type: "text",
+              mime_type:
+                "application/json",
+              schema:
+                responseSchema,
+            },
+          }),
+          GEMINI_ATTEMPT_TIMEOUT_MS,
+          `Gemini ${model}`,
+        );
 
       if (
         !interaction.output_text

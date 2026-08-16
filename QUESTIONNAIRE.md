@@ -37,7 +37,7 @@ The release does not currently deserve marketing attention.
 
 Each analysis includes an opportunity score, confidence, six evidence scores, score explanations, customer insights, release insights, risks, and a recommended next action.
 
-When the result is **PROMOTE**, ShipSpark also generates campaign content and can publish the prepared Discord message through a real Discord webhook.
+When the result is **PROMOTE**, ShipSpark also generates campaign content, supports native social sharing with optional link and image media, and can publish the prepared Discord message through a real Discord webhook.
 
 **Evidence → Decision → Explanation → Campaign → Publish**
 
@@ -136,7 +136,7 @@ Every score is explained.
 
 Campaign generation only happens when promotion is justified.
 
-If the result is PROMOTE, ShipSpark can continue directly into campaign creation and real Discord publishing.
+If the result is PROMOTE, ShipSpark can continue directly into campaign creation, native social sharing, and real Discord publishing.
 
 The main advantage is:
 

@@ -52,15 +52,11 @@ type Props = {
 
   webhook: string;
 
-  publishing: boolean;
-  publishError: string;
-  published: boolean;
-
   onWebhookChange: (
     value: string,
   ) => void;
 
-  onPublish: () => void;
+  onDiscordPublished: () => void;
 
   onBack: () => void;
 };
@@ -90,7 +86,7 @@ function CopyButton({
   ] =
     useState(false);
 
-  async function handleCopy() {
+  async function copy() {
     await navigator.clipboard.writeText(
       value,
     );
@@ -98,8 +94,9 @@ function CopyButton({
     setCopied(true);
 
     window.setTimeout(
-      () =>
-        setCopied(false),
+      () => {
+        setCopied(false);
+      },
       1400,
     );
   }
@@ -107,9 +104,7 @@ function CopyButton({
   return (
     <button
       type="button"
-      onClick={
-        handleCopy
-      }
+      onClick={copy}
       className="inline-flex h-9 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 text-[10px] font-extrabold text-[#9ba7b5] transition hover:bg-white/[0.055] hover:text-white"
     >
       {copied ? (
@@ -132,7 +127,113 @@ function CopyButton({
   );
 }
 
-function MediaPreview({
+function ChannelMediaFields({
+  link,
+  image,
+  onLinkChange,
+  onImageChange,
+  accent,
+}: {
+  link: string;
+  image: string;
+
+  onLinkChange: (
+    value: string,
+  ) => void;
+
+  onImageChange: (
+    value: string,
+  ) => void;
+
+  accent:
+    | "social"
+    | "discord";
+}) {
+  const focusClass =
+    accent === "discord"
+      ? "focus:border-[#7180ff]/50"
+      : "focus:border-[#c5ff0a]/35";
+
+  return (
+    <div className="mt-5 rounded-[20px] border border-white/[0.065] bg-[#070b10] p-4">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <div className="text-[10px] font-extrabold text-white">
+            Post media
+          </div>
+
+          <p className="mt-1 text-[9px] font-semibold text-[#687684]">
+            Optional link and image for this channel
+          </p>
+        </div>
+
+        <span className="rounded-full border border-white/[0.07] bg-white/[0.025] px-2.5 py-1 text-[8px] font-extrabold uppercase tracking-[0.08em] text-[#758290]">
+          Optional
+        </span>
+      </div>
+
+      <div className="grid gap-3">
+        <label>
+          <span className="flex items-center gap-2 text-[9px] font-extrabold uppercase tracking-[0.09em] text-[#788594]">
+            <Link2
+              size={11}
+            />
+            Post link
+          </span>
+
+          <input
+            type="url"
+            value={link}
+            onChange={(
+              event,
+            ) => {
+              onLinkChange(
+                event.target.value,
+              );
+            }}
+            placeholder="https://yourapp.com/release"
+            className={[
+              "mt-2 w-full rounded-[14px] border border-white/[0.07] bg-[#05080d] px-3.5 py-3 text-[11px] font-semibold text-white outline-none transition placeholder:text-[#4d5966]",
+              focusClass,
+            ].join(
+              " ",
+            )}
+          />
+        </label>
+
+        <label>
+          <span className="flex items-center gap-2 text-[9px] font-extrabold uppercase tracking-[0.09em] text-[#788594]">
+            <ImageIcon
+              size={11}
+            />
+            Image URL
+          </span>
+
+          <input
+            type="url"
+            value={image}
+            onChange={(
+              event,
+            ) => {
+              onImageChange(
+                event.target.value,
+              );
+            }}
+            placeholder="https://cdn.example.com/campaign.png"
+            className={[
+              "mt-2 w-full rounded-[14px] border border-white/[0.07] bg-[#05080d] px-3.5 py-3 text-[11px] font-semibold text-white outline-none transition placeholder:text-[#4d5966]",
+              focusClass,
+            ].join(
+              " ",
+            )}
+          />
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function MediaImage({
   imageUrl,
 }: {
   imageUrl: string;
@@ -142,14 +243,12 @@ function MediaPreview({
   }
 
   return (
-    <div className="mt-4 overflow-hidden rounded-[18px] border border-white/[0.06] bg-[#070b10]">
+    <div className="mt-4 overflow-hidden rounded-[18px] border border-white/[0.07] bg-[#070b10]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={
-          imageUrl
-        }
-        alt="Campaign media"
-        className="max-h-[340px] w-full object-cover"
+        src={imageUrl}
+        alt="Campaign media preview"
+        className="max-h-[320px] w-full object-cover"
       />
     </div>
   );
@@ -158,13 +257,13 @@ function MediaPreview({
 function SocialPreview({
   appName,
   content,
-  destinationUrl,
-  imageUrl,
+  link,
+  image,
 }: {
   appName: string;
   content: string;
-  destinationUrl: string;
-  imageUrl: string;
+  link: string;
+  image: string;
 }) {
   return (
     <div className="rounded-[24px] border border-white/[0.055] bg-[#11161d] p-5 sm:p-6">
@@ -172,7 +271,6 @@ function SocialPreview({
         <div className="flex size-11 items-center justify-center rounded-full bg-[linear-gradient(135deg,#c5ff0a,#53ff72)] text-[#071006]">
           <Sparkles
             size={16}
-            strokeWidth={2.5}
           />
         </div>
 
@@ -191,30 +289,24 @@ function SocialPreview({
         {content}
       </p>
 
-      {destinationUrl && (
+      {link && (
         <a
-          href={
-            destinationUrl
-          }
+          href={link}
           target="_blank"
           rel="noreferrer"
-          className="mt-4 flex items-center gap-2 break-all text-[11px] font-semibold text-[#a9ba91]"
+          className="mt-4 flex items-center gap-2 break-all text-[11px] font-semibold text-[#b2c58e]"
         >
           <Link2
             size={12}
             className="shrink-0 text-[#c5ff0a]"
           />
 
-          {
-            destinationUrl
-          }
+          {link}
         </a>
       )}
 
-      <MediaPreview
-        imageUrl={
-          imageUrl
-        }
+      <MediaImage
+        imageUrl={image}
       />
     </div>
   );
@@ -223,13 +315,13 @@ function SocialPreview({
 function DiscordPreview({
   appName,
   content,
-  destinationUrl,
-  imageUrl,
+  link,
+  image,
 }: {
   appName: string;
   content: string;
-  destinationUrl: string;
-  imageUrl: string;
+  link: string;
+  image: string;
 }) {
   return (
     <div className="rounded-[24px] bg-[#313338] p-5 sm:p-6">
@@ -259,11 +351,9 @@ function DiscordPreview({
             {content}
           </p>
 
-          {destinationUrl && (
+          {link && (
             <a
-              href={
-                destinationUrl
-              }
+              href={link}
               target="_blank"
               rel="noreferrer"
               className="mt-3 flex items-center gap-2 break-all text-[11px] font-semibold text-[#b5b9ff]"
@@ -272,18 +362,14 @@ function DiscordPreview({
                 size={12}
               />
 
-              {
-                destinationUrl
-              }
+              {link}
             </a>
           )}
         </div>
       </div>
 
-      <MediaPreview
-        imageUrl={
-          imageUrl
-        }
+      <MediaImage
+        imageUrl={image}
       />
     </div>
   );
@@ -296,9 +382,7 @@ function StatusMessage({
   state: ActionState;
   successText: string;
 }) {
-  if (
-    state.error
-  ) {
+  if (state.error) {
     return (
       <div className="mt-4 flex items-start gap-2 rounded-[16px] border border-red-400/15 bg-red-400/[0.05] p-3 text-[10px] font-semibold leading-5 text-red-200">
         <CircleAlert
@@ -306,16 +390,12 @@ function StatusMessage({
           className="mt-0.5 shrink-0"
         />
 
-        {
-          state.error
-        }
+        {state.error}
       </div>
     );
   }
 
-  if (
-    state.success
-  ) {
+  if (state.success) {
     return (
       <div className="mt-4 flex items-start gap-2 rounded-[16px] border border-[#53ff72]/15 bg-[#53ff72]/[0.05] p-3 text-[10px] font-semibold leading-5 text-[#9bd8a4]">
         <CheckCircle2
@@ -323,9 +403,7 @@ function StatusMessage({
           className="mt-0.5 shrink-0 text-[#53ff72]"
         />
 
-        {
-          successText
-        }
+        {successText}
       </div>
     );
   }
@@ -340,6 +418,7 @@ export function PublishExperience({
   discordDraft,
   webhook,
   onWebhookChange,
+  onDiscordPublished,
   onBack,
 }: Props) {
   const displayName =
@@ -347,14 +426,26 @@ export function PublishExperience({
     "Current release";
 
   const [
-    destinationUrl,
-    setDestinationUrl,
+    socialLink,
+    setSocialLink,
   ] =
     useState("");
 
   const [
-    imageUrl,
-    setImageUrl,
+    socialImage,
+    setSocialImage,
+  ] =
+    useState("");
+
+  const [
+    discordLink,
+    setDiscordLink,
+  ] =
+    useState("");
+
+  const [
+    discordImage,
+    setDiscordImage,
   ] =
     useState("");
 
@@ -376,7 +467,7 @@ export function PublishExperience({
 
   async function createShareFile() {
     if (
-      !imageUrl.trim()
+      !socialImage.trim()
     ) {
       return undefined;
     }
@@ -384,12 +475,10 @@ export function PublishExperience({
     try {
       const response =
         await fetch(
-          imageUrl.trim(),
+          socialImage.trim(),
         );
 
-      if (
-        !response.ok
-      ) {
+      if (!response.ok) {
         return undefined;
       }
 
@@ -407,7 +496,7 @@ export function PublishExperience({
       const extension =
         blob.type
           .split("/")[1]
-          ?.split("+")[0] ||
+          ?.split("+")[0] ??
         "png";
 
       return new File(
@@ -450,12 +539,14 @@ export function PublishExperience({
         title:
           analysis.campaign
             .headline,
+
         text:
           socialDraft,
-        ...(destinationUrl.trim()
+
+        ...(socialLink.trim()
           ? {
               url:
-                destinationUrl.trim(),
+                socialLink.trim(),
             }
           : {}),
       };
@@ -501,7 +592,7 @@ export function PublishExperience({
         error:
           error instanceof Error
             ? error.message
-            : "Unable to open the share sheet.",
+            : "Unable to open the native share sheet.",
       });
     }
   }
@@ -527,21 +618,26 @@ export function PublishExperience({
           "/api/publish/discord",
           {
             method: "POST",
+
             headers: {
               "Content-Type":
                 "application/json",
             },
+
             body:
               JSON.stringify({
                 webhook:
                   webhook.trim(),
+
                 content:
                   discordDraft,
+
                 destinationUrl:
-                  destinationUrl.trim() ||
+                  discordLink.trim() ||
                   undefined,
+
                 imageUrl:
-                  imageUrl.trim() ||
+                  discordImage.trim() ||
                   undefined,
               }),
           },
@@ -556,9 +652,7 @@ export function PublishExperience({
         error?: string;
       };
 
-      if (
-        !response.ok
-      ) {
+      if (!response.ok) {
         throw new Error(
           data.error ||
             "Unable to publish to Discord.",
@@ -570,6 +664,8 @@ export function PublishExperience({
         success: true,
         error: "",
       });
+
+      onDiscordPublished();
     } catch (error) {
       setDiscordState({
         loading: false,
@@ -604,9 +700,7 @@ export function PublishExperience({
 
           <button
             type="button"
-            onClick={
-              onBack
-            }
+            onClick={onBack}
             className="mt-6 inline-flex h-11 items-center gap-2 rounded-xl border border-white/[0.08] px-4 text-[11px] font-extrabold text-white"
           >
             <ArrowLeft
@@ -642,15 +736,13 @@ export function PublishExperience({
             </h2>
 
             <p className="mt-5 max-w-[800px] text-[14px] font-semibold leading-7 text-[#9eabb8]">
-              Add an optional campaign link and image, then share socially or publish directly to Discord.
+              Share the approved campaign socially or publish it directly to Discord, with independent links and campaign images for each destination.
             </p>
           </div>
 
           <button
             type="button"
-            onClick={
-              onBack
-            }
+            onClick={onBack}
             className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 text-[10px] font-extrabold text-[#9ba7b5] transition hover:bg-white/[0.05] hover:text-white"
           >
             <ArrowLeft
@@ -658,84 +750,6 @@ export function PublishExperience({
             />
             Edit in Promote
           </button>
-        </div>
-      </section>
-
-      <section className="rounded-[26px] border border-white/[0.07] bg-[#090e15] p-6">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-          <div className="max-w-[380px]">
-            <div className="flex items-center gap-2 text-[#c5ff0a]">
-              <Sparkles
-                size={13}
-              />
-
-              <span className="text-[9px] font-extrabold uppercase tracking-[0.12em]">
-                Campaign media
-              </span>
-            </div>
-
-            <h3 className="mt-3 text-[21px] font-extrabold tracking-[-0.025em] text-white">
-              One campaign, shared context.
-            </h3>
-
-            <p className="mt-2 text-[11px] font-semibold leading-5 text-[#778492]">
-              The link and image are reused in the social share and Discord announcement.
-            </p>
-          </div>
-
-          <div className="grid flex-1 gap-4 xl:max-w-[950px] xl:grid-cols-2">
-            <label>
-              <span className="flex items-center gap-2 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[#758290]">
-                <Link2
-                  size={11}
-                />
-                Destination link
-              </span>
-
-              <input
-                type="url"
-                value={
-                  destinationUrl
-                }
-                onChange={(
-                  event,
-                ) =>
-                  setDestinationUrl(
-                    event.target
-                      .value,
-                  )
-                }
-                placeholder="https://yourapp.com/release"
-                className="mt-2 w-full rounded-[16px] border border-white/[0.07] bg-[#070b10] px-4 py-3.5 text-[12px] font-semibold text-white outline-none transition focus:border-[#c5ff0a]/30"
-              />
-            </label>
-
-            <label>
-              <span className="flex items-center gap-2 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[#758290]">
-                <ImageIcon
-                  size={11}
-                />
-                Image URL
-              </span>
-
-              <input
-                type="url"
-                value={
-                  imageUrl
-                }
-                onChange={(
-                  event,
-                ) =>
-                  setImageUrl(
-                    event.target
-                      .value,
-                  )
-                }
-                placeholder="https://cdn.example.com/release-image.png"
-                className="mt-2 w-full rounded-[16px] border border-white/[0.07] bg-[#070b10] px-4 py-3.5 text-[12px] font-semibold text-white outline-none transition focus:border-[#c5ff0a]/30"
-              />
-            </label>
-          </div>
         </div>
       </section>
 
@@ -791,14 +805,10 @@ export function PublishExperience({
                     channel,
                   ) => (
                     <div
-                      key={
-                        channel
-                      }
-                      className="flex size-12 items-center justify-center rounded-2xl border border-white/[0.09] bg-black/25 text-[11px] font-black text-[#c7d0d9] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                      key={channel}
+                      className="flex size-12 items-center justify-center rounded-2xl border border-white/[0.09] bg-black/25 text-[11px] font-black text-[#c7d0d9]"
                     >
-                      {
-                        channel
-                      }
+                      {channel}
                     </div>
                   ),
                 )}
@@ -832,7 +842,6 @@ export function PublishExperience({
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-[#c5ff0a] text-[#071006]">
                   <Share2
                     size={18}
-                    strokeWidth={2.4}
                   />
                 </div>
 
@@ -854,27 +863,29 @@ export function PublishExperience({
               </div>
 
               <CopyButton
-                value={
-                  socialDraft
-                }
+                value={socialDraft}
                 label="Copy post"
               />
             </header>
 
             <div className="p-6">
               <SocialPreview
-                appName={
-                  displayName
+                appName={displayName}
+                content={socialDraft}
+                link={socialLink}
+                image={socialImage}
+              />
+
+              <ChannelMediaFields
+                link={socialLink}
+                image={socialImage}
+                onLinkChange={
+                  setSocialLink
                 }
-                content={
-                  socialDraft
+                onImageChange={
+                  setSocialImage
                 }
-                destinationUrl={
-                  destinationUrl
-                }
-                imageUrl={
-                  imageUrl
-                }
+                accent="social"
               />
 
               <div className="mt-5 flex items-start gap-3 rounded-[18px] border border-white/[0.06] bg-white/[0.02] p-4">
@@ -890,23 +901,19 @@ export function PublishExperience({
                   </div>
 
                   <p className="mt-1 text-[10px] font-semibold leading-5 text-[#788593]">
-                    Your browser opens the native share sheet so you can choose an available social app or destination.
+                    Text, link and supported image media are handed to your device share sheet.
                   </p>
                 </div>
               </div>
 
               <StatusMessage
-                state={
-                  socialState
-                }
+                state={socialState}
                 successText="The native share flow completed."
               />
 
               <button
                 type="button"
-                onClick={
-                  shareSocial
-                }
+                onClick={shareSocial}
                 disabled={
                   socialState.loading
                 }
@@ -932,6 +939,7 @@ export function PublishExperience({
                 size={12}
                 className="text-[#53ff72]"
               />
+
               No social credentials stored by ShipSpark
             </footer>
           </article>
@@ -944,7 +952,6 @@ export function PublishExperience({
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-[#5865f2] text-white">
                   <RadioTower
                     size={18}
-                    strokeWidth={2.4}
                   />
                 </div>
 
@@ -966,26 +973,28 @@ export function PublishExperience({
               </div>
 
               <CopyButton
-                value={
-                  discordDraft
-                }
+                value={discordDraft}
               />
             </header>
 
             <div className="p-6">
               <DiscordPreview
-                appName={
-                  displayName
+                appName={displayName}
+                content={discordDraft}
+                link={discordLink}
+                image={discordImage}
+              />
+
+              <ChannelMediaFields
+                link={discordLink}
+                image={discordImage}
+                onLinkChange={
+                  setDiscordLink
                 }
-                content={
-                  discordDraft
+                onImageChange={
+                  setDiscordImage
                 }
-                destinationUrl={
-                  destinationUrl
-                }
-                imageUrl={
-                  imageUrl
-                }
+                accent="discord"
               />
 
               <div className="mt-5 rounded-[18px] border border-[#5865f2]/15 bg-[#070b10] p-4">
@@ -1002,17 +1011,14 @@ export function PublishExperience({
 
                 <input
                   type="url"
-                  value={
-                    webhook
-                  }
+                  value={webhook}
                   onChange={(
                     event,
-                  ) =>
+                  ) => {
                     onWebhookChange(
-                      event.target
-                        .value,
-                    )
-                  }
+                      event.target.value,
+                    );
+                  }}
                   placeholder="https://discord.com/api/webhooks/..."
                   className="mt-3 w-full rounded-[14px] border border-white/[0.07] bg-[#05080d] px-3.5 py-3 text-[11px] font-semibold text-white outline-none transition focus:border-[#7180ff]/45"
                 />
@@ -1028,10 +1034,8 @@ export function PublishExperience({
               </div>
 
               <StatusMessage
-                state={
-                  discordState
-                }
-                successText="The approved announcement was delivered to Discord."
+                state={discordState}
+                successText="The announcement, link and media were delivered to Discord."
               />
 
               <button
@@ -1071,6 +1075,7 @@ export function PublishExperience({
                 size={12}
                 className="text-[#8991ff]"
               />
+
               Direct delivery through ShipSpark
             </footer>
           </article>
@@ -1090,21 +1095,23 @@ export function PublishExperience({
             </div>
 
             <p className="mt-1 text-[10px] font-semibold leading-5 text-[#74818e]">
-              ShipSpark never distributes a campaign automatically. Every channel requires an explicit action.
+              ShipSpark never distributes a campaign automatically. Every destination requires an explicit action.
             </p>
           </div>
         </div>
 
-        {destinationUrl && (
+        {(socialLink ||
+          discordLink) && (
           <a
             href={
-              destinationUrl
+              socialLink ||
+              discordLink
             }
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 text-[10px] font-extrabold text-[#c5ff0a]"
           >
-            Open destination
+            Open campaign destination
             <ExternalLink
               size={11}
             />

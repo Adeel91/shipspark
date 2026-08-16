@@ -244,21 +244,6 @@ export function ReleaseWorkspace() {
     setWebhook,
   ] = useState("");
 
-  const [
-    publishing,
-    setPublishing,
-  ] = useState(false);
-
-  const [
-    publishError,
-    setPublishError,
-  ] = useState("");
-
-  const [
-    published,
-    setPublished,
-  ] = useState(false);
-
 
   const [
     history,
@@ -330,8 +315,6 @@ export function ReleaseWorkspace() {
     setLoading(true);
     setError("");
     setResult(null);
-    setPublished(false);
-    setPublishError("");
     setActiveTab(
       "intelligence",
     );
@@ -449,83 +432,27 @@ export function ReleaseWorkspace() {
     }
   }
 
-  async function publish() {
-    if (!result) {
+  function markCurrentPublished() {
+    if (!currentHistoryId) {
       return;
     }
 
-    setPublishing(true);
-    setPublishError("");
-
-    try {
-      const response =
-        await fetch(
-          "/api/publish/discord",
-          {
-            method:
-              "POST",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body:
-              JSON.stringify({
-                webhookUrl:
-                  webhook,
-                content:
-                  discordDraft,
-                appName:
-                  result.stores
-                    .ios
-                    ?.name ??
-                  result.stores
-                    .android
-                    ?.name,
-              }),
-          },
-        );
-
-      const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.error ||
-            "Publishing failed.",
-        );
-      }
-
-      setPublished(true);
-
-      if (
-        currentHistoryId
-      ) {
-        const updated =
-          history.map(
-            (item) =>
-              item.id ===
-              currentHistoryId
-                ? {
-                    ...item,
-                    status:
-                      "published" as const,
-                  }
-                : item,
-          );
-
-        saveHistory(
-          updated,
-        );
-      }
-    } catch (caught) {
-      setPublishError(
-        caught instanceof Error
-          ? caught.message
-          : "Publishing failed.",
+    const updated =
+      history.map(
+        (item) =>
+          item.id ===
+          currentHistoryId
+            ? {
+                ...item,
+                status:
+                  "published" as const,
+              }
+            : item,
       );
-    } finally {
-      setPublishing(false);
-    }
+
+    saveHistory(
+      updated,
+    );
   }
 
   const analysis =
@@ -1057,20 +984,11 @@ export function ReleaseWorkspace() {
             webhook={
               webhook
             }
-            publishing={
-              publishing
-            }
-            publishError={
-              publishError
-            }
-            published={
-              published
-            }
             onWebhookChange={
               setWebhook
             }
-            onPublish={
-              publish
+            onDiscordPublished={
+              markCurrentPublished
             }
             onBack={() =>
               setActiveTab(
