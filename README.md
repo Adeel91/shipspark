@@ -24,6 +24,10 @@ ShipSpark combines store data, customer reviews, release notes, and optional Git
 ![GitHub](https://img.shields.io/badge/GitHub-Release_Context-181717?style=flat-square&logo=github)
 ![Discord](https://img.shields.io/badge/Discord-Publishing-5865f2?style=flat-square&logo=discord)
 
+<br />
+
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Open_ShipSpark-c5ff0a?style=for-the-badge&logo=vercel&logoColor=black)](https://shipspark.vercel.app/)
+
 </div>
 
 ---
