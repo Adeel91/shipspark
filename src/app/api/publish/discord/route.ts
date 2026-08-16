@@ -1,74 +1,58 @@
-export const runtime = "nodejs";
+import { NextResponse } from "next/server";
 
-function validateWebhook(value: string) {
+type PublishBody = {
+  webhook?: string;
+  content?: string;
+  destinationUrl?: string;
+  imageUrl?: string;
+};
+
+function parseOptionalHttpsUrl(
+  value?: string,
+): string | undefined {
+  const trimmed = value?.trim();
+
+  if (!trimmed) {
+    return undefined;
+  }
+
   let url: URL;
 
   try {
-    url = new URL(value);
+    url = new URL(trimmed);
   } catch {
-    throw new Error("Enter a valid Discord webhook URL.");
+    throw new Error(
+      "Enter a valid HTTPS URL.",
+    );
   }
 
-  const validProtocol =
-    url.protocol === "https:";
-
-  const validHost =
-    url.hostname === "discord.com" ||
-    url.hostname === "discordapp.com";
-
-  const validPath =
-    url.pathname.startsWith("/api/webhooks/");
-
-  if (
-    !validProtocol ||
-    !validHost ||
-    !validPath
-  ) {
-    throw new Error("Enter a valid Discord webhook URL.");
+  if (url.protocol !== "https:") {
+    throw new Error(
+      "Only HTTPS URLs are supported.",
+    );
   }
 
-  return url;
+  return url.toString();
 }
 
-export async function POST(request: Request) {
+export async function POST(
+  request: Request,
+) {
   try {
-    const body = (await request.json()) as {
-      webhookUrl?: string;
-      content?: string;
-      appName?: string;
-    };
+    const body =
+      (await request.json()) as PublishBody;
 
-    const webhookUrl = body.webhookUrl?.trim();
-    const content = body.content?.trim();
-    const appName = body.appName?.trim();
+    const webhook =
+      body.webhook?.trim();
 
-    if (!webhookUrl) {
-      return Response.json(
-        {
-          error: "Discord webhook URL is required.",
-        },
-        {
-          status: 400,
-        },
-      );
-    }
+    const content =
+      body.content?.trim();
 
-    if (!content) {
-      return Response.json(
-        {
-          error: "Campaign content is required.",
-        },
-        {
-          status: 400,
-        },
-      );
-    }
-
-    if (content.length > 2000) {
-      return Response.json(
+    if (!webhook || !content) {
+      return NextResponse.json(
         {
           error:
-            "Discord messages must be 2000 characters or fewer.",
+            "Webhook and message are required.",
         },
         {
           status: 400,
@@ -76,85 +60,153 @@ export async function POST(request: Request) {
       );
     }
 
-    const url = validateWebhook(webhookUrl);
-
-    url.searchParams.set("wait", "true");
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: "ShipSpark",
-        content,
-        allowed_mentions: {
-          parse: [],
-        },
-        embeds: appName
-          ? [
-              {
-                title: `${appName} release campaign`,
-                description:
-                  "Campaign generated and published with ShipSpark.",
-                color: 16744448,
-              },
-            ]
-          : undefined,
-      }),
-    });
-
-    const responseText = await response.text();
-
-    if (!response.ok) {
-      let message = "Discord rejected the campaign.";
-
-      try {
-        const parsed = JSON.parse(responseText) as {
-          message?: string;
-        };
-
-        if (parsed.message) {
-          message = parsed.message;
-        }
-      } catch {
-        // Keep generic error.
-      }
-
-      throw new Error(message);
-    }
-
-    let publishedMessage:
-      | {
-          id?: string;
-          channel_id?: string;
-        }
-      | undefined;
+    let webhookUrl: URL;
 
     try {
-      publishedMessage = JSON.parse(responseText);
+      webhookUrl =
+        new URL(webhook);
     } catch {
-      publishedMessage = undefined;
+      return NextResponse.json(
+        {
+          error:
+            "Enter a valid Discord webhook URL.",
+        },
+        {
+          status: 400,
+        },
+      );
     }
 
-    return Response.json({
-      published: true,
-      messageId: publishedMessage?.id,
-      channelId: publishedMessage?.channel_id,
-      publishedAt: new Date().toISOString(),
+    const validProtocol =
+      webhookUrl.protocol ===
+      "https:";
+
+    const validHost =
+      webhookUrl.hostname ===
+        "discord.com" ||
+      webhookUrl.hostname ===
+        "discordapp.com";
+
+    const validPath =
+      webhookUrl.pathname.startsWith(
+        "/api/webhooks/",
+      );
+
+    if (
+      !validProtocol ||
+      !validHost ||
+      !validPath
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Enter a valid Discord webhook URL.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const destinationUrl =
+      parseOptionalHttpsUrl(
+        body.destinationUrl,
+      );
+
+    const imageUrl =
+      parseOptionalHttpsUrl(
+        body.imageUrl,
+      );
+
+    const embeds: Array<
+      Record<string, unknown>
+    > = [];
+
+    if (
+      destinationUrl ||
+      imageUrl
+    ) {
+      const embed: Record<
+        string,
+        unknown
+      > = {};
+
+      if (destinationUrl) {
+        embed.title =
+          "Open release";
+
+        embed.url =
+          destinationUrl;
+      }
+
+      if (imageUrl) {
+        embed.image = {
+          url: imageUrl,
+        };
+      }
+
+      embeds.push(embed);
+    }
+
+    const payload: Record<
+      string,
+      unknown
+    > = {
+      content,
+      allowed_mentions: {
+        parse: [],
+      },
+    };
+
+    if (embeds.length > 0) {
+      payload.embeds =
+        embeds;
+    }
+
+    const response =
+      await fetch(
+        webhookUrl.toString(),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body:
+            JSON.stringify(
+              payload,
+            ),
+        },
+      );
+
+    if (!response.ok) {
+      const detail =
+        await response
+          .text()
+          .catch(() => "");
+
+      return NextResponse.json(
+        {
+          error:
+            detail ||
+            "Discord publishing failed.",
+        },
+        {
+          status: 502,
+        },
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
     });
   } catch (error) {
-    console.error(
-      "ShipSpark Discord publishing failed:",
-      error,
-    );
-
-    return Response.json(
+    return NextResponse.json(
       {
         error:
           error instanceof Error
             ? error.message
-            : "Publishing failed.",
+            : "Unable to publish to Discord.",
       },
       {
         status: 500,
