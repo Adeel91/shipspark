@@ -10,6 +10,14 @@ import {
   IntelligenceExperienceV2,
 } from "./IntelligenceExperienceV2";
 
+import {
+  PromoteExperience,
+} from "./PromoteExperience";
+
+import {
+  PublishExperience,
+} from "./PublishExperience";
+
 
 import {
   AnalysisProgress,
@@ -20,16 +28,11 @@ import {
   AppWindow,
   ArrowRight,
   BrainCircuit,
-  Check,
   CheckCircle2,
-  Copy,
   GitBranch,
   LoaderCircle,
   MessageSquareText,
-  RadioTower,
-  Send,
   ShieldAlert,
-  Sparkles,
   Store,
   Target,
 } from "lucide-react";
@@ -184,47 +187,6 @@ type HistoryItem = {
 const historyKey =
   "shipspark_release_history_v2";
 
-function CopyButton({
-  value,
-  active,
-  label,
-  onCopy,
-}: {
-  value: string;
-  active: string;
-  label: string;
-  onCopy: (
-    label: string,
-    value: string,
-  ) => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={() =>
-        onCopy(
-          label,
-          value,
-        )
-      }
-      className="inline-flex items-center gap-2 rounded-lg border border-white/[0.09] bg-white/[0.035] px-3 py-2 text-[11px] font-normal text-[#a8b6c9] transition hover:border-[#68dff9]/25 hover:text-white"
-    >
-      {active ===
-      label ? (
-        <>
-          <Check size={12} />
-          Copied
-        </>
-      ) : (
-        <>
-          <Copy size={12} />
-          Copy
-        </>
-      )}
-    </button>
-  );
-}
-
 export function ReleaseWorkspace() {
   const [
     appStoreUrl,
@@ -297,10 +259,6 @@ export function ReleaseWorkspace() {
     setPublished,
   ] = useState(false);
 
-  const [
-    copied,
-    setCopied,
-  ] = useState("");
 
   const [
     history,
@@ -489,23 +447,6 @@ export function ReleaseWorkspace() {
     } finally {
       setLoading(false);
     }
-  }
-
-  async function copy(
-    label: string,
-    value: string,
-  ) {
-    await navigator.clipboard.writeText(
-      value,
-    );
-
-    setCopied(label);
-
-    setTimeout(
-      () =>
-        setCopied(""),
-      1400,
-    );
   }
 
   async function publish() {
@@ -1054,184 +995,38 @@ export function ReleaseWorkspace() {
         analysis &&
         activeTab ===
           "campaign" && (
-          <div>
-            {!analysis.campaign.enabled ? (
-              <section className="grid min-h-[430px] place-items-center">
-                <div className="max-w-[680px] text-center">
-                  <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.03] text-[#8fa0b7]">
-                    <Target size={18} />
-                  </div>
-
-                  <h2 className="mt-6 text-[34px] font-normal tracking-[-0.025em] text-white">
-                    No campaign generated
-                  </h2>
-
-                  <p className="mt-4 text-[16px] font-normal leading-8 text-[#a8b7ca]">
-                    ShipSpark decided{" "}
-                    {
-                      analysis.decision
-                    }
-                    . Generating campaign copy anyway would defeat the point of the decision engine.
-                  </p>
-
-                  <div className="mt-8 border-t border-white/[0.065] pt-6">
-                    <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#acb6c2]">
-                      Next step
-                    </div>
-
-                    <p className="mt-3 text-[15px] font-normal leading-7 text-[#c2cede]">
-                      {
-                        analysis.campaign
-                          .nextStep
-                      }
-                    </p>
-                  </div>
-                </div>
-              </section>
-            ) : (
-              <div className="space-y-10">
-                <section className="border-b border-white/[0.065] pb-9">
-                  <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.17em] text-[#c5ff0a]">
-                    Winning angle
-                  </div>
-
-                  <h2 className="mt-5 max-w-[920px] text-[42px] font-normal leading-[1.06] tracking-[-0.03em] text-white">
-                    {
-                      analysis.campaign
-                        .angle
-                    }
-                  </h2>
-
-                  <p className="mt-5 max-w-[760px] text-[16px] font-normal leading-7 text-[#a8b7ca]">
-                    {
-                      analysis.campaign
-                        .hook
-                    }
-                  </p>
-                </section>
-
-                <section>
-                  <div className="flex items-start justify-between gap-5">
-                    <div>
-                      <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#acb6c2]">
-                        Campaign headline
-                      </div>
-
-                      <h3 className="mt-4 text-[31px] font-normal tracking-[-0.025em] text-white">
-                        {
-                          analysis.campaign
-                            .headline
-                        }
-                      </h3>
-                    </div>
-
-                    <CopyButton
-                      value={
-                        analysis.campaign
-                          .headline
-                      }
-                      label="headline"
-                      active={
-                        copied
-                      }
-                      onCopy={
-                        copy
-                      }
-                    />
-                  </div>
-                </section>
-
-                <section className="grid gap-9 lg:grid-cols-2">
-                  <div>
-                    <div className="mb-4 flex items-center justify-between">
-                      <span className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#acb6c2]">
-                        Social
-                      </span>
-
-                      <CopyButton
-                        value={
-                          socialDraft
-                        }
-                        label="social"
-                        active={
-                          copied
-                        }
-                        onCopy={
-                          copy
-                        }
-                      />
-                    </div>
-
-                    <textarea
-                      value={
-                        socialDraft
-                      }
-                      onChange={(
-                        event,
-                      ) =>
-                        setSocialDraft(
-                          event.target
-                            .value,
-                        )
-                      }
-                      rows={10}
-                      className="w-full resize-none rounded-[22px] border border-white/[0.075] bg-[#080d15] p-5 text-[14px] font-normal leading-7 text-[#d4deeb] outline-none focus:border-[#c5ff0a]/30"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="mb-4 flex items-center justify-between">
-                      <span className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#acb6c2]">
-                        Discord
-                      </span>
-
-                      <CopyButton
-                        value={
-                          discordDraft
-                        }
-                        label="discord"
-                        active={
-                          copied
-                        }
-                        onCopy={
-                          copy
-                        }
-                      />
-                    </div>
-
-                    <textarea
-                      value={
-                        discordDraft
-                      }
-                      onChange={(
-                        event,
-                      ) =>
-                        setDiscordDraft(
-                          event.target
-                            .value,
-                        )
-                      }
-                      rows={10}
-                      className="w-full resize-none rounded-[22px] border border-white/[0.075] bg-[#080d15] p-5 text-[14px] font-normal leading-7 text-[#d4deeb] outline-none focus:border-[#c5ff0a]/30"
-                    />
-                  </div>
-                </section>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveTab(
-                      "publish",
-                    )
-                  }
-                  className="inline-flex h-11 items-center gap-3 rounded-xl bg-white px-5 text-[12px] font-medium text-[#07101b]"
-                >
-                  Continue to publishing
-                  <ArrowRight size={14} />
-                </button>
-              </div>
-            )}
-          </div>
+          <PromoteExperience
+            analysis={
+              analysis
+            }
+            appName={
+              result.stores
+                .ios
+                ?.name ??
+              result.stores
+                .android
+                ?.name ??
+              result.github
+                ?.repository
+            }
+            socialDraft={
+              socialDraft
+            }
+            discordDraft={
+              discordDraft
+            }
+            onSocialDraftChange={
+              setSocialDraft
+            }
+            onDiscordDraftChange={
+              setDiscordDraft
+            }
+            onContinue={() =>
+              setActiveTab(
+                "publish",
+              )
+            }
+          />
         )}
 
       {!loading &&
@@ -1239,127 +1034,50 @@ export function ReleaseWorkspace() {
         analysis &&
         activeTab ===
           "publish" && (
-          <div>
-            {!analysis.campaign.enabled ? (
-              <div className="grid min-h-[420px] place-items-center text-center">
-                <div>
-                  <RadioTower
-                    size={21}
-                    className="mx-auto text-[#66788f]"
-                  />
-
-                  <h2 className="mt-5 text-[28px] font-normal text-white">
-                    Nothing to publish
-                  </h2>
-
-                  <p className="mt-3 text-[14px] text-[#9cacbf]">
-                    Publishing becomes available when ShipSpark returns PROMOTE.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="grid gap-12 lg:grid-cols-[0.75fr_1.25fr]">
-                <section>
-                  <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.17em] text-[#c5ff0a]">
-                    Discord publishing
-                  </div>
-
-                  <h2 className="mt-5 text-[34px] font-normal text-white">
-                    Send it for real.
-                  </h2>
-
-                  <p className="mt-4 text-[14px] font-normal leading-7 text-[#a7b6c9]">
-                    Enter a Discord webhook and ShipSpark will publish the prepared campaign directly.
-                  </p>
-
-                  <input
-                    type="password"
-                    value={
-                      webhook
-                    }
-                    onChange={(
-                      event,
-                    ) =>
-                      setWebhook(
-                        event.target
-                          .value,
-                      )
-                    }
-                    placeholder="https://discord.com/api/webhooks/..."
-                    className="mt-7 w-full rounded-xl border border-white/[0.075] bg-[#080d15] px-4 py-3.5 text-[13px] text-white outline-none focus:border-[#c5ff0a]/30"
-                  />
-
-                  {publishError && (
-                    <p className="mt-4 text-[13px] text-red-300">
-                      {
-                        publishError
-                      }
-                    </p>
-                  )}
-
-                  {published && (
-                    <div className="mt-5 flex items-center gap-2 text-[13px] text-emerald-300">
-                      <CheckCircle2 size={14} />
-                      Published successfully
-                    </div>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={
-                      publish
-                    }
-                    disabled={
-                      publishing ||
-                      !webhook.trim()
-                    }
-                    className="mt-6 inline-flex h-11 items-center gap-3 rounded-xl bg-[#5865f2] px-5 text-[12px] font-medium text-white disabled:opacity-40"
-                  >
-                    {publishing ? (
-                      <LoaderCircle
-                        size={14}
-                        className="animate-spin"
-                      />
-                    ) : (
-                      <Send size={14} />
-                    )}
-
-                    {publishing
-                      ? "Publishing"
-                      : "Publish campaign"}
-                  </button>
-                </section>
-
-                <section className="rounded-[28px] border border-white/[0.075] bg-[#0a1019] p-7">
-                  <div className="font-[var(--font-main)] text-[10px] uppercase tracking-[0.11em] text-[#acb6c2]">
-                    Preview
-                  </div>
-
-                  <div className="mt-7 flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-full bg-[#5865f2]">
-                      <Sparkles size={15} />
-                    </div>
-
-                    <div>
-                      <div className="text-[14px] font-medium text-white">
-                        ShipSpark
-                      </div>
-
-                      <div className="font-[var(--font-main)] text-[10px] uppercase text-[#acb6c2]">
-                        App
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="mt-6 whitespace-pre-wrap text-[14px] font-normal leading-7 text-[#c3cedd]">
-                    {
-                      discordDraft
-                    }
-                  </p>
-                </section>
-              </div>
-            )}
-          </div>
+          <PublishExperience
+            analysis={
+              analysis
+            }
+            appName={
+              result.stores
+                .ios
+                ?.name ??
+              result.stores
+                .android
+                ?.name ??
+              result.github
+                ?.repository
+            }
+            socialDraft={
+              socialDraft
+            }
+            discordDraft={
+              discordDraft
+            }
+            webhook={
+              webhook
+            }
+            publishing={
+              publishing
+            }
+            publishError={
+              publishError
+            }
+            published={
+              published
+            }
+            onWebhookChange={
+              setWebhook
+            }
+            onPublish={
+              publish
+            }
+            onBack={() =>
+              setActiveTab(
+                "campaign",
+              )
+            }
+          />
         )}
 
       {!loading &&

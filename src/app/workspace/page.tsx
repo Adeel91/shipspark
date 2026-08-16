@@ -16,7 +16,7 @@ export default function WorkspacePage() {
     <div className="min-h-screen bg-[#070a0f] text-white">
       <SiteHeader />
 
-      <main className="mx-auto max-w-[1320px] px-6 pb-24 pt-10 sm:px-8 lg:px-10">
+      <main className="mx-auto w-full max-w-[1680px] px-6 pb-24 pt-10 sm:px-8 lg:px-10 xl:px-12 2xl:px-14">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-[#7f8997] transition hover:text-[#c5ff0a]"
