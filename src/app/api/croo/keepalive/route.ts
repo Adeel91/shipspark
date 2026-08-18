@@ -21,7 +21,13 @@ import type {
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-const KEEPALIVE_MS = 285_000;
+const KEEPALIVE_MS = 360_000;
+
+declare global {
+  var crooProviderPromise:
+    | Promise<void>
+    | undefined;
+}
 
 function temporaryIssueResult(
   error: unknown,
@@ -254,20 +260,34 @@ export async function GET(
     }
   }
 
-  waitUntil(
-    runProviderWindow().catch(
-      (error) => {
-        console.error(
-          "CROO keepalive provider failed:",
-          error,
-        );
-      },
-    ),
-  );
+  if (!globalThis.crooProviderPromise) {
+    globalThis.crooProviderPromise =
+      runProviderWindow().catch(
+        (error) => {
+          console.error(
+            "CROO keepalive provider failed:",
+            error,
+          );
+
+          globalThis.crooProviderPromise =
+            undefined;
+        },
+      );
+
+    waitUntil(
+      globalThis.crooProviderPromise,
+    );
+
+    return Response.json({
+      ok: true,
+      status: "started",
+      windowSeconds: 360,
+    });
+  }
 
   return Response.json({
     ok: true,
-    status: "started",
+    status: "already_running",
     windowSeconds: 360,
   });
 }
