@@ -20,17 +20,17 @@ export function parseRequirements(value: unknown): ShipSparkCrooInput {
   const result: ShipSparkCrooInput = {
     appStoreUrl:
       typeof input.appStoreUrl === "string" ? input.appStoreUrl.trim() : undefined,
-    googlePlayUrl:
-      typeof input.googlePlayUrl === "string"
-        ? input.googlePlayUrl.trim()
+    playStoreUrl:
+      typeof input.playStoreUrl === "string"
+        ? input.playStoreUrl.trim()
         : undefined,
     githubUrl:
       typeof input.githubUrl === "string" ? input.githubUrl.trim() : undefined,
   };
 
-  if (!result.appStoreUrl && !result.googlePlayUrl && !result.githubUrl) {
+  if (!result.appStoreUrl && !result.playStoreUrl && !result.githubUrl) {
     throw new Error(
-      "Provide at least one of appStoreUrl, googlePlayUrl, or githubUrl.",
+      "Provide at least one of appStoreUrl, playStoreUrl, or githubUrl.",
     );
   }
 

@@ -10,6 +10,13 @@ const ai = new GoogleGenAI({
     process.env.GEMINI_API_KEY,
 });
 
+class InputError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InputError";
+  }
+}
+
 type StoreReview = {
   platform:
     | "ios"
@@ -420,7 +427,7 @@ function parseAppStoreUrl(
     url.hostname !==
       "itunes.apple.com"
   ) {
-    throw new Error(
+    throw new InputError(
       "Enter a valid App Store URL.",
     );
   }
@@ -476,7 +483,7 @@ function parsePlayStoreUrl(
     );
 
   if (!appId) {
-    throw new Error(
+    throw new InputError(
       "Could not find the Google Play package ID.",
     );
   }
@@ -879,7 +886,7 @@ async function fetchGithub(
     ]);
 
   if (!repository) {
-    throw new Error(
+    throw new InputError(
       "GitHub repository could not be found.",
     );
   }
@@ -1971,7 +1978,10 @@ ${JSON.stringify(
             : "ShipSpark analysis failed.",
       },
       {
-        status: 500,
+        status:
+          error instanceof InputError
+            ? 400
+            : 500,
       },
     );
   }

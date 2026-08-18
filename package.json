@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "croo:provider": "tsx scripts/croo-provider.ts"
+    "croo:provider": "tsx scripts/croo-provider.ts",
+    "croo:test": "tsx scripts/test-croo-analysis.ts"
   },
   "dependencies": {
     "@croo-network/sdk": "^0.2.1",
@@ -32,6 +33,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5"
   },
   "packageManager": "pnpm@11.21.0"
