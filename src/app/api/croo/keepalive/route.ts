@@ -21,7 +21,7 @@ import type {
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-const KEEPALIVE_MS = 285_000;
+const KEEPALIVE_MS = 235_000;
 
 declare global {
   var crooProviderPromise:
