@@ -21,7 +21,7 @@ import type {
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-const KEEPALIVE_MS = 360_000;
+const KEEPALIVE_MS = 240_000;
 
 declare global {
   var crooProviderPromise:
@@ -235,12 +235,6 @@ async function runProviderWindow() {
 export async function GET(
   request: Request,
 ) {
-  if (request.method === "HEAD") {
-    return new Response(null, {
-      status: 200,
-    });
-  }
-
   const secret =
     process.env.CROO_KEEPALIVE_SECRET;
 
