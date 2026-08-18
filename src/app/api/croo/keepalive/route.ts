@@ -23,6 +23,8 @@ export const maxDuration = 300;
 
 const KEEPALIVE_MS = 235_000;
 
+let activeJobs = 0;
+
 declare global {
   var crooProviderPromise:
     | Promise<void>
@@ -145,86 +147,92 @@ async function runProviderWindow() {
     async (
       event: unknown,
     ) => {
-      const payload =
-        event as {
-          orderId?: string;
-          id?: string;
-          data?: {
-            orderId?: string;
-            id?: string;
-          };
-        };
-
-      const orderId =
-        payload.orderId ||
-        payload.id ||
-        payload.data?.orderId ||
-        payload.data?.id;
-
-      if (!orderId) {
-        return;
-      }
-
-      let result:
-        ShipSparkCrooResult;
+      activeJobs++;
 
       try {
-        const order =
-          await client.getOrder(
-            orderId,
-          );
+        const payload =
+          event as {
+            orderId?: string;
+            id?: string;
+            data?: {
+              orderId?: string;
+              id?: string;
+            };
+          };
 
-        const requirements =
-          (
-            order as {
-              requirements?: unknown;
-            }
-          ).requirements;
+        const orderId =
+          payload.orderId ||
+          payload.id ||
+          payload.data?.orderId ||
+          payload.data?.id;
+
+        if (!orderId) {
+          return;
+        }
+
+        let result:
+          ShipSparkCrooResult;
 
         try {
-          const input =
-            parseRequirements(
-              requirements,
+          const order =
+            await client.getOrder(
+              orderId,
             );
 
-          result =
-            await runShipSparkAnalysis(
-              input,
-            );
+          const requirements =
+            (
+              order as {
+                requirements?: unknown;
+              }
+            ).requirements;
+
+          try {
+            const input =
+              parseRequirements(
+                requirements,
+              );
+
+            result =
+              await runShipSparkAnalysis(
+                input,
+              );
+          } catch (error) {
+            result =
+              needsInputResult(
+                error,
+              );
+          }
         } catch (error) {
           result =
-            needsInputResult(
+            temporaryIssueResult(
               error,
             );
         }
-      } catch (error) {
-        result =
-          temporaryIssueResult(
+
+        try {
+          await client.deliverOrder(
+            orderId,
+            {
+              deliverableType:
+                DeliverableType.Schema,
+              deliverableSchema:
+                JSON.stringify(
+                  result,
+                ),
+            },
+          );
+
+          console.log(
+            `[CROO] Delivered ${orderId}: ${result.status}`,
+          );
+        } catch (error) {
+          console.error(
+            `[CROO] Delivery failed for ${orderId}:`,
             error,
           );
-      }
-
-      try {
-        await client.deliverOrder(
-          orderId,
-          {
-            deliverableType:
-              DeliverableType.Schema,
-            deliverableSchema:
-              JSON.stringify(
-                result,
-              ),
-          },
-        );
-
-        console.log(
-          `[CROO] Delivered ${orderId}: ${result.status}`,
-        );
-      } catch (error) {
-        console.error(
-          `[CROO] Delivery failed for ${orderId}:`,
-          error,
-        );
+        }
+      } finally {
+        activeJobs--;
       }
     },
   );
@@ -237,6 +245,16 @@ async function runProviderWindow() {
       );
     },
   );
+
+  while (activeJobs > 0) {
+    console.log(
+      `[CROO] Waiting for ${activeJobs} active job(s) before closing provider`,
+    );
+
+    await new Promise((resolve) =>
+      setTimeout(resolve, 1000),
+    );
+  }
 
   stream.close();
 }
