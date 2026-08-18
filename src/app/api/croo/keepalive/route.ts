@@ -102,18 +102,27 @@ async function runProviderWindow() {
         const payload =
           event as {
             negotiationId?: string;
+            negotiation_id?: string;
             id?: string;
             data?: {
               negotiationId?: string;
+              negotiation_id?: string;
               id?: string;
             };
           };
 
         const negotiationId =
           payload.negotiationId ||
+          payload.negotiation_id ||
           payload.id ||
           payload.data?.negotiationId ||
+          payload.data?.negotiation_id ||
           payload.data?.id;
+
+        console.log(
+          "[CROO] Negotiation received:",
+          negotiationId,
+        );
 
         if (!negotiationId) {
           return;
