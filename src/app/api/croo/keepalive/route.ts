@@ -268,6 +268,6 @@ export async function GET(
   return Response.json({
     ok: true,
     status: "started",
-    windowSeconds: 285,
+    windowSeconds: 360,
   });
 }
