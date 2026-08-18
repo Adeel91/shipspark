@@ -1132,6 +1132,280 @@ function storePayload(
   };
 }
 
+type SourceIdentityMismatch = {
+  message: string;
+  sources: Array<{
+    source: "ios" | "android" | "github";
+    name: string;
+  }>;
+};
+
+function normalizeProductIdentity(
+  value?: string,
+) {
+  return (value ?? "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, " and ")
+    .replace(
+      /\b(the|app|mobile|game|official|ios|android)\b/g,
+      " ",
+    )
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function identityTokens(
+  value?: string,
+) {
+  return normalizeProductIdentity(
+    value,
+  )
+    .split(" ")
+    .filter(
+      (token) =>
+        token.length >= 3,
+    );
+}
+
+function namesLikelyMatch(
+  first?: string,
+  second?: string,
+) {
+  const a =
+    normalizeProductIdentity(
+      first,
+    );
+
+  const b =
+    normalizeProductIdentity(
+      second,
+    );
+
+  if (!a || !b) {
+    return true;
+  }
+
+  if (a === b) {
+    return true;
+  }
+
+  const compactA =
+    a.replace(/\s+/g, "");
+
+  const compactB =
+    b.replace(/\s+/g, "");
+
+  if (
+    compactA.includes(
+      compactB,
+    ) ||
+    compactB.includes(
+      compactA,
+    )
+  ) {
+    return true;
+  }
+
+  const aTokens =
+    new Set(
+      identityTokens(
+        first,
+      ),
+    );
+
+  const bTokens =
+    new Set(
+      identityTokens(
+        second,
+      ),
+    );
+
+  if (
+    aTokens.size === 0 ||
+    bTokens.size === 0
+  ) {
+    return true;
+  }
+
+  const overlap =
+    [...aTokens].filter(
+      (token) =>
+        bTokens.has(
+          token,
+        ),
+    ).length;
+
+  const smaller =
+    Math.min(
+      aTokens.size,
+      bTokens.size,
+    );
+
+  return (
+    overlap >= 1 &&
+    overlap / smaller >= 0.5
+  );
+}
+
+function githubMatchesStore(
+  github:
+    GithubSnapshot,
+  storeName: string,
+) {
+  const repositoryName =
+    github.repository
+      .split("/")
+      .pop() ?? "";
+
+  if (
+    namesLikelyMatch(
+      repositoryName,
+      storeName,
+    )
+  ) {
+    return true;
+  }
+
+  const normalizedStore =
+    normalizeProductIdentity(
+      storeName,
+    );
+
+  if (!normalizedStore) {
+    return true;
+  }
+
+  const githubContext =
+    normalizeProductIdentity(
+      [
+        github.repository,
+        github.description,
+        github.latestRelease
+          ?.name,
+        github.latestRelease
+          ?.body,
+        github.readme?.slice(
+          0,
+          4000,
+        ),
+      ]
+        .filter(Boolean)
+        .join(" "),
+    );
+
+  if (
+    githubContext.includes(
+      normalizedStore,
+    )
+  ) {
+    return true;
+  }
+
+  const storeTokens =
+    identityTokens(
+      storeName,
+    );
+
+  if (
+    storeTokens.length === 0
+  ) {
+    return true;
+  }
+
+  const githubTokens =
+    new Set(
+      identityTokens(
+        githubContext,
+      ),
+    );
+
+  const matchedTokens =
+    storeTokens.filter(
+      (token) =>
+        githubTokens.has(
+          token,
+        ),
+    );
+
+  return (
+    matchedTokens.length >=
+    Math.max(
+      1,
+      Math.ceil(
+        storeTokens.length *
+          0.6,
+      ),
+    )
+  );
+}
+
+function validateSourceIdentity(
+  ios?: StoreSnapshot,
+  android?: StoreSnapshot,
+  github?: GithubSnapshot,
+): SourceIdentityMismatch | null {
+  if (
+    ios &&
+    android &&
+    !namesLikelyMatch(
+      ios.name,
+      android.name,
+    )
+  ) {
+    return {
+      message:
+        `These sources appear to describe different products. App Store is "${ios.name}" while Google Play is "${android.name}". Use sources for the same app and try again.`,
+      sources: [
+        {
+          source: "ios",
+          name: ios.name,
+        },
+        {
+          source: "android",
+          name:
+            android.name,
+        },
+      ],
+    };
+  }
+
+  const store =
+    ios ?? android;
+
+  if (
+    store &&
+    github &&
+    !githubMatchesStore(
+      github,
+      store.name,
+    )
+  ) {
+    return {
+      message:
+        `These sources appear to describe different products. The store app is "${store.name}" while the GitHub repository is "${github.repository}". Use a repository that belongs to the same product and try again.`,
+      sources: [
+        {
+          source:
+            store.platform,
+          name:
+            store.name,
+        },
+        {
+          source:
+            "github",
+          name:
+            github.repository,
+        },
+      ],
+    };
+  }
+
+  return null;
+}
+
 const USE_DEV_GEMINI =
   process.env.GEMINI_DEV_MODE ===
   "true";
@@ -1385,6 +1659,31 @@ export async function POST(
       ].filter(
         Boolean,
       ) as StoreSnapshot[];
+
+    const identityMismatch =
+      validateSourceIdentity(
+        ios,
+        android,
+        github,
+      );
+
+    if (
+      identityMismatch
+    ) {
+      return Response.json(
+        {
+          code:
+            "SOURCE_MISMATCH",
+          error:
+            identityMismatch.message,
+          sources:
+            identityMismatch.sources,
+        },
+        {
+          status: 400,
+        },
+      );
+    }
 
     const reviewCount =
       stores.reduce(
