@@ -21,7 +21,7 @@ import type {
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-const KEEPALIVE_MS = 240_000;
+const KEEPALIVE_MS = 285_000;
 
 declare global {
   var crooProviderPromise:
@@ -262,17 +262,25 @@ export async function GET(
 
   if (!globalThis.crooProviderPromise) {
     globalThis.crooProviderPromise =
-      runProviderWindow().catch(
-        (error) => {
-          console.error(
-            "CROO keepalive provider failed:",
-            error,
-          );
+      runProviderWindow()
+        .catch(
+          (error) => {
+            console.error(
+              "CROO keepalive provider failed:",
+              error,
+            );
+          },
+        )
+        .finally(
+          () => {
+            globalThis.crooProviderPromise =
+              undefined;
 
-          globalThis.crooProviderPromise =
-            undefined;
-        },
-      );
+            console.log(
+              "[CROO] Provider window ended and is ready to restart.",
+            );
+          },
+        );
 
     waitUntil(
       globalThis.crooProviderPromise,
@@ -281,13 +289,13 @@ export async function GET(
     return Response.json({
       ok: true,
       status: "started",
-      windowSeconds: 360,
+      windowSeconds: KEEPALIVE_MS / 1000,
     });
   }
 
   return Response.json({
     ok: true,
     status: "already_running",
-    windowSeconds: 360,
+    windowSeconds: KEEPALIVE_MS / 1000,
   });
 }
