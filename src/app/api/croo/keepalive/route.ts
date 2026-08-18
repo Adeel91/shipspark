@@ -235,6 +235,12 @@ async function runProviderWindow() {
 export async function GET(
   request: Request,
 ) {
+  if (request.method === "HEAD") {
+    return new Response(null, {
+      status: 200,
+    });
+  }
+
   const secret =
     process.env.CROO_KEEPALIVE_SECRET;
 
